@@ -31,12 +31,14 @@ import { MANTLE } from "./mantle";
 import { ROOTSTOCK } from "./rootstock";
 import { MODE } from "./mode";
 import { BLAST } from "./blast";
+import { DOLPHINET } from "./dolphinet";
 
 // Currently taken from
 // https://github.com/TP-Lab/networklist-org/blob/main/chains.json
 // https://chainid.network/chains.json
 
 export const DEFAULT_NETWORKS: Network[] = [
+  DOLPHINET,
   ETHEREUM,
   POLYGON,
   BSC,
@@ -94,7 +96,7 @@ if (process.env.RELEASE_ENV === "false") {
   );
 }
 
-export const INITIAL_NETWORK = ETHEREUM[0]; // Ethereum Mainnet
+export const INITIAL_NETWORK = DOLPHINET[0]; // Dolphinet Mainnet
 
 export const NETWORK_ICON_MAP = new Map<number, string>(
   [...DEFAULT_NETWORKS, ...ADDITIONAL_NETWORK_ICONS].map((n) => [
@@ -108,6 +110,12 @@ export const NETWORK_ICON_MAP = new Map<number, string>(
 );
 
 export function getNetworkIconUrl(network: Network) {
+  // Prefer remote icon URL for Dolphinet to avoid missing local icon assets
+  // in custom forks where public/icons/network may not be populated yet.
+  if (network.chainTag === "dolphinet" && network.iconUrls?.[0]) {
+    return network.iconUrls[0];
+  }
+
   return NETWORK_ICON_MAP.get(network.chainId) ?? network.iconUrls?.[0];
 }
 
@@ -123,6 +131,14 @@ export function getAssetLogoUrls(
 
     if (chainTag) {
       urls.push(getPublicURL(`icons/nativeToken/${chainTag}.png`));
+      // Fallback for forks that don't ship native token pngs yet.
+      if (chainTag === "dolphinet") {
+        urls.push(
+          asset.chainId === 1519
+            ? "https://explorer-testnet.dolphinode.world/assets/configs/network_icon.png"
+            : "https://explorer.dolphinode.world/assets/configs/network_icon.png",
+        );
+      }
     }
   } else {
     if (MAINNET_CHAIN_IDS.has(asset.chainId)) {

@@ -18,6 +18,10 @@ import { getNetwork } from "core/common/network";
 import { DexPrices, getDexPrices } from "../../dexPrices";
 import { getBalanceFromChain } from "../../chain";
 import { CxToken, indexerApi } from "../../indexer";
+import {
+  fetchAddressTokenBalances,
+  isBlockscoutV2ApiUrl,
+} from "../../explorer/blockscoutV2";
 import { prepareAccountTokensSync } from "./utils";
 import { K_INDEXER_CHAINS } from "./constants";
 
@@ -41,6 +45,7 @@ export const syncAccountAssets = memoize(
         TokenType.Asset,
       ),
     ]);
+    const isDolphinet = network.chainTag === "dolphinet";
 
     for (const token of freshAccTokensData) {
       const native =
@@ -200,9 +205,13 @@ export const syncAccountAssets = memoize(
           delete token.priceUSD;
           delete token.priceUSDChange;
 
-          // Remove token from the list if no price
+          // Remove token from the list if no price (except Dolphinet: keep enabled if balance > 0)
           if (!token.manuallyStatusChanged) {
-            token.status = TokenStatus.Disabled;
+            const rawBalanceBN = new BigNumber(token.rawBalance);
+            token.status =
+              isDolphinet && rawBalanceBN.gt(0)
+                ? TokenStatus.Enabled
+                : TokenStatus.Disabled;
           }
         }
       }
@@ -218,7 +227,9 @@ export const syncAccountAssets = memoize(
 
 export const fetchAccountTokens = memoize(
   (chainId: number, accountAddress: string) =>
-    fetchKxAccountTokens(chainId, accountAddress),
+    fetchDolphinetAccountTokens(chainId, accountAddress).catch(() =>
+      fetchKxAccountTokens(chainId, accountAddress),
+    ),
   // .catch((err) => {
   //     if (!err?.message?.includes("Chain not supported")) {
   //       console.warn("Using another indexer", err);
@@ -231,6 +242,80 @@ export const fetchAccountTokens = memoize(
     maxAge: 10_000, // 10 sec
   },
 );
+
+async function fetchDolphinetAccountTokens(
+  chainId: number,
+  accountAddress: string,
+) {
+  if (chainId !== 1520 && chainId !== 1519) {
+    throw new Error("Not Dolphinet");
+  }
+
+  const network = await getNetwork(chainId);
+  const { explorerApiUrl } = network;
+
+  if (!explorerApiUrl || !isBlockscoutV2ApiUrl(explorerApiUrl)) {
+    throw new Error("Blockscout v2 API is not configured");
+  }
+
+  const balances = await fetchAddressTokenBalances(
+    explorerApiUrl,
+    accountAddress,
+  );
+
+  const assets: CxToken[] = [];
+  for (const b of balances) {
+    const token = b.token;
+    if (!token) continue;
+    const t = String(token.type || "").toUpperCase();
+    if (!t.includes("ERC-20") && !t.includes("ERC20")) continue;
+
+    const decimals = token.decimals ? Number(token.decimals) : 18;
+    const quoteRate = token.exchange_rate ? Number(token.exchange_rate) : null;
+
+    let quote: number | null = null;
+    if (quoteRate !== null && !Number.isNaN(quoteRate)) {
+      try {
+        quote = new BigNumber(b.value)
+          .div(new BigNumber(10).pow(decimals))
+          .times(quoteRate)
+          .toNumber();
+      } catch {
+        quote = null;
+      }
+    }
+
+    assets.push({
+      native_token: false,
+      type: "ERC20",
+      contract_address: token.address_hash,
+      contract_name: token.name || "",
+      contract_ticker_symbol: token.symbol || "",
+      contract_decimals: Number.isFinite(decimals) ? decimals : 18,
+      logo_url: null,
+      contract_display_name: null,
+      logo_urls: null,
+      last_transferred_at: null,
+      is_spam: false,
+      balance: b.value,
+      balance_24h: "0",
+      quote_rate: quoteRate,
+      quote,
+      pretty_quote: null,
+      quote_rate_24h: null,
+      quote_24h: null,
+      pretty_quote_24h: null,
+      protocol_metadata: null,
+      nft_data: null,
+      floor_price_quote: null,
+      pretty_floor_price_quote: null,
+      floor_price_native_quote: null,
+      last_transfered_at: null,
+    });
+  }
+
+  return assets;
+}
 
 async function fetchKxAccountTokens(chainId: number, accountAddress: string) {
   if (!K_INDEXER_CHAINS.has(chainId)) {

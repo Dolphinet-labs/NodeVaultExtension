@@ -26,6 +26,10 @@ import AddAccountHeader from "app/components/blocks/AddAccountHeader";
 import AcceptCheckbox from "app/components/blocks/AcceptCheckbox";
 import PasswordField from "app/components/elements/PasswordField";
 import PasswordValidationField from "app/components/elements/PasswordValidationField";
+import {
+  NODEVAULT_PRIVACY_URL,
+  NODEVAULT_TERMS_URL,
+} from "app/constants/links";
 
 type FormValues = {
   password: string;
@@ -153,7 +157,7 @@ const SetupPassword = memo(() => {
                         I have read and agree to the
                         <br />
                         <a
-                          href="https://wigwam.app/terms"
+                          href={NODEVAULT_TERMS_URL}
                           target="_blank"
                           rel="nofollow noreferrer"
                           className="text-brand-main underline"
@@ -182,10 +186,10 @@ const SetupPassword = memo(() => {
                     title="Analytics"
                     description={
                       <>
-                        Help us make Wigwam better.
+                        Help us make NodeVault better.
                         <br />I agree to the{" "}
                         <a
-                          href="https://wigwam.app/privacy"
+                          href={NODEVAULT_PRIVACY_URL}
                           target="_blank"
                           rel="nofollow noreferrer"
                           className="text-brand-main underline"

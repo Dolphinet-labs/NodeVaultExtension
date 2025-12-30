@@ -1,10 +1,10 @@
-# Wigwam - Web3 Wallet
+# NodeVault - Web3 Wallet
 
-### https://wigwam.app
+### NodeVault browser extension wallet
 
 A browser extension Web3 wallet designed for Ethereum, Polygon, BNB Smart Chain, Arbitrum, and all EVM networks. Reliable and secure solution for managing accounts and crypto keys, exploring DeFi, NFTs, and GameFi.
 
-![Wigwam](./docs/banner.png)
+![NodeVault](./docs/banner.png)
 
 **Table of Contents**
 
@@ -14,6 +14,11 @@ A browser extension Web3 wallet designed for Ethereum, Polygon, BNB Smart Chain,
 - [Useful Scripts](#useful-scripts)
 - [Contributions](#contributions)
 - [Support](#support)
+
+## Official links
+
+- **Website**: https://chain.dolphinode.world/wallet
+- **Source code**: https://github.com/Dolphinet-labs/NodeVaultExtension
 
 ## Features
 
@@ -76,7 +81,7 @@ You can also find documentation for specific modules within the source code.
 ### Get the source code
 
 ```bash
-git clone git@github.com:wigwamapp/local-wigwam.git wigwam
+git clone https://github.com/Dolphinet-labs/NodeVaultExtension.git nodevault
 ```
 
 ### Install app dependencies
@@ -89,7 +94,7 @@ yarn
 
 ```bash
 # for Chrome and other Chrome-based browsers
-yarn build
+yarn build:chrome
 
 # for Firefox
 yarn build:firefox
@@ -100,7 +105,13 @@ yarn build:firefox
 1. Open `chrome://extensions/` in your browser
 2. Enable "Developer mode"
 3. Tap on "Load unpacked"
-4. Select `<your_local_wigwam_repository_dir>/dist/prod/chrome_unpacked`
+4. Select `<your_local_nodevault_repository_dir>/dist/prod/chrome_unpacked`
+
+### Environment variables
+
+Do **not** commit secrets (Infura / API keys / private keys). Use a local `.env` file (ignored by git) or CI/CD secrets.
+
+See `env.example`.
 
 ## Useful scripts
 

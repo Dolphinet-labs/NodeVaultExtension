@@ -7,6 +7,11 @@ import { AccountToken, TokenStandard, TokenType } from "core/types";
 import { NATIVE_TOKEN_SLUG, parseTokenSlug } from "core/common/tokens";
 import { getNetwork } from "core/common/network";
 
+import {
+  fetchAddressTokenTransfers,
+  fetchAddressTransactions,
+  isBlockscoutV2ApiUrl,
+} from "../../explorer/blockscoutV2";
 import { getLatestTokenActivity, prepareTokenActivitiesRepo } from "./utils";
 
 /**
@@ -27,6 +32,99 @@ export async function syncExplorerTokenActivities(token: AccountToken) {
   } = parseTokenSlug(tokenSlug);
 
   const latestItem = await getLatestTokenActivity(token);
+
+  // Blockscout v2 mode
+  if (isBlockscoutV2ApiUrl(explorerApiUrl)) {
+    const { addToActivities, releaseToRepo } = prepareTokenActivitiesRepo();
+
+    const base = {
+      chainId,
+      accountAddress,
+      tokenSlug,
+      pending: 0,
+    };
+
+    if (nativeToken) {
+      const txs = await fetchAddressTransactions(explorerApiUrl, accountAddress);
+      for (const tx of txs) {
+        const timeAt = Date.parse(tx.timestamp);
+        if (!Number.isFinite(timeAt)) continue;
+        if (latestItem && latestItem.timeAt >= timeAt) break;
+
+        if (!tx.value || tx.value === "0") continue;
+        if (!tx.from || !tx.to) continue;
+
+        const from = typeof tx.from === "string" ? tx.from : tx.from.hash;
+        const to = typeof tx.to === "string" ? tx.to : tx.to.hash;
+        if (!from || !to) continue;
+
+        const income =
+          accountAddress.toLowerCase() === to.toLowerCase();
+
+        addToActivities({
+          ...base,
+          timeAt,
+          txHash: tx.hash,
+          type: "transfer",
+          anotherAddress: income ? from : to,
+          amount: (BigInt(tx.value) * (income ? 1n : -1n)).toString(),
+        });
+      }
+
+      await releaseToRepo();
+      return true;
+    }
+
+    const transfers = await fetchAddressTokenTransfers({
+      baseURL: explorerApiUrl,
+      address: accountAddress,
+      token: tokenAddress,
+      type:
+        standard === TokenStandard.ERC20
+          ? "ERC-20"
+          : standard === TokenStandard.ERC721
+            ? "ERC-721"
+            : "ERC-1155",
+    });
+
+    for (const t of transfers) {
+      const timeAt = Date.parse(t.timestamp ?? "");
+      if (!Number.isFinite(timeAt)) continue;
+      if (latestItem && latestItem.timeAt >= timeAt) break;
+
+      const from = typeof t.from === "string" ? t.from : t.from.hash;
+      const to = typeof t.to === "string" ? t.to : t.to.hash;
+      if (!from || !to) continue;
+
+      // Filter exact token id for NFT
+      if (tokenType === TokenType.NFT) {
+        const total: any = t.total as any;
+        const transferTokenId: string | undefined = total?.token_id;
+        if (transferTokenId && transferTokenId !== tokenId) continue;
+      }
+
+      const income =
+        accountAddress.toLowerCase() === to.toLowerCase();
+
+      const total: any = t.total as any;
+      const value: string =
+        total?.value ?? "1";
+
+      if (value === "0") continue;
+
+      addToActivities({
+        ...base,
+        timeAt,
+        txHash: t.transaction_hash,
+        type: "transfer",
+        anotherAddress: income ? from : to,
+        amount: (BigInt(value) * (income ? 1n : -1n)).toString(),
+      });
+    }
+
+    await releaseToRepo();
+    return true;
+  }
 
   const action = (() => {
     if (nativeToken) return "txlist";

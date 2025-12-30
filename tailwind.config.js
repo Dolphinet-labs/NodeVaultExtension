@@ -10,8 +10,9 @@ module.exports = {
           darkaccent: "#0D1311",
           darkbg: "#181A1F", // #13191F
           lightgray: "#E4E4E4",
-          redone: "#80EF6E",
-          redtwo: "#80EF6E",
+          // Primary accent (NodeVault): blue
+          redone: "#00A3FF",
+          redtwo: "#00A3FF",
           dark: "#181A1F",
           darkblue: "#0E1314",
           darklight: "#2A3C3F",
@@ -28,7 +29,8 @@ module.exports = {
           inactivedark2: "#91999B",
           redobject: "#B82D41",
           redtext: "#EA556A",
-          greenobject: "#4F9A5E",
+          // Keep token name to avoid refactors; value is now brand blue
+          greenobject: "#00A3FF",
         },
       },
       fontFamily: {
@@ -124,9 +126,9 @@ module.exports = {
         },
       },
       boxShadow: {
-        buttonaccent: "0px 5px 25px rgba(128, 239, 110, 0.15)",
+        buttonaccent: "0px 5px 25px rgba(0, 163, 255, 0.18)",
         buttondanger: "0px 5px 25px rgba(254, 0, 0, 0.05)",
-        buttonsecondary: "0px 4px 15px rgba(211, 255, 204, 0.07)",
+        buttonsecondary: "0px 4px 15px rgba(0, 163, 255, 0.08)",
         addaccountmodal:
           "inset 0px 0px 7px rgba(255, 255, 255, 0.05), inset 0px 1px 1px rgba(114, 114, 114, 0.15)",
         receiveqrcode:
@@ -140,9 +142,9 @@ module.exports = {
       },
       backgroundImage: {
         buttonaccent:
-          "linear-gradient(259.09deg, rgba(128, 239, 110, var(--tw-bg-opacity)) -1.03%, rgba(128, 239, 110, var(--tw-bg-opacity)) 198.87%)",
-        radio: "linear-gradient(275.43deg, #80EF6E 13.81%, #80EF6E 111.89%)",
-        activity: "linear-gradient(220deg, #80EF6E 0.11%, #80EF6E 90.88%)",
+          "linear-gradient(259.09deg, rgba(0, 163, 255, var(--tw-bg-opacity)) -1.03%, rgba(0, 163, 255, var(--tw-bg-opacity)) 198.87%)",
+        radio: "linear-gradient(275.43deg, #00A3FF 13.81%, #00A3FF 111.89%)",
+        activity: "linear-gradient(220deg, #00A3FF 0.11%, #00A3FF 90.88%)",
         addaccountcontinue:
           "linear-gradient(90.44deg, rgba(13, 14, 32, 0.95) 2.88%, rgba(15, 16, 34, 0.95) 21.54%, rgba(13, 14, 31, 0.95) 41.08%, rgba(17, 18, 36, 0.95) 81.76%, rgba(16, 17, 35, 0.95) 97.51%)",
       },

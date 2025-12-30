@@ -21,7 +21,9 @@ export function useExplorerLink(network?: Network) {
                 explorerUrl,
                 network.chainTag === "ethereum"
                   ? `/nft/${address}/${id}`
-                  : `/token/${address}`,
+                  : network.chainTag === "dolphinet"
+                    ? `/token/${address}/instance/${id}`
+                    : `/token/${address}`,
               ),
           }
         : null,

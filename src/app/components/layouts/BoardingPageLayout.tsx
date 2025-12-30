@@ -6,12 +6,11 @@ import { pageAtom } from "app/atoms";
 import ContentContainer from "app/components/layouts/ContentContainer";
 import Button from "app/components/elements/Button";
 import BackButton from "app/components/elements/BackButton";
-import { ReactComponent as WigwamIcon } from "app/icons/WigwamTitle.svg";
+import NodeVaultLogoImage from "app/images/nodevault.png";
 import { ReactComponent as ArrowLeftLongIcon } from "app/icons/arrow-left-long.svg";
 // import WelcomeBgImage from "app/images/welcome-bg.jpg";
 // import WelcomeTreeLeftImage from "app/images/welcome-tree-left.png";
 // import WelcomeTreeRightImage from "app/images/welcome-tree-right.png";
-// import WelcomeWigwamImage from "app/images/welcome-wigwam.png";
 // import WelcomeFireImage from "app/images/welcome-fire.png";
 
 type BoardingPageLayoutProps = {
@@ -81,42 +80,15 @@ const BoardingPageLayout: FC<PropsWithChildren<BoardingPageLayoutProps>> = ({
           "w-full flex justify-center items-center",
         )}
       >
-        <WigwamIcon className={classNames("h-[2rem]", "w-auto mr-3")} />
+        <img
+          src={NodeVaultLogoImage}
+          alt="NodeVault"
+          className={classNames("h-[2rem]", "w-[2rem] mr-3")}
+        />
+        <span>NodeVault</span>
       </div>
     ) : (
       <>
-        {/* <img
-          src={WelcomeTreeLeftImage}
-          alt="Wigwam"
-          className={classNames(
-            "absolute bottom-0 left-[5%]",
-            "h-[82%] w-auto",
-          )}
-        />
-        <img
-          src={WelcomeTreeRightImage}
-          alt="Wigwam"
-          className={classNames(
-            "absolute bottom-0 right-[2%] z-[2]",
-            "h-[82.6%] w-auto",
-          )}
-        />
-        <img
-          src={WelcomeWigwamImage}
-          alt="Wigwam"
-          className={classNames(
-            "absolute bottom-[7.5%] right-[22.7%]",
-            "h-[42.22%] w-auto",
-          )}
-        />
-        <img
-          src={WelcomeFireImage}
-          alt="Wigwam"
-          className={classNames(
-            "absolute bottom-[4.5%] right-[36%]",
-            "h-[54.5%] w-auto",
-          )}
-        /> */}
       </>
     )}
   </div>

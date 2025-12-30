@@ -38,9 +38,9 @@ const PriceChange: FC<PriceChangeProps> = ({
         "font-bold",
         isPercent && "py-1 px-2",
         "rounded-md",
-        !hideBackground && isPositive && isPercent && "bg-[#4F9A5E]",
+        !hideBackground && isPositive && isPercent && "bg-[#00A3FF]",
         !hideBackground && !isPositive && isPercent && "bg-[#B82D41]",
-        isPositive && (!isPercent || hideBackground) && "text-[#6BB77A]",
+        isPositive && (!isPercent || hideBackground) && "text-[#5EC6FF]",
         !isPositive && (!isPercent || hideBackground) && "text-[#EA556A]",
         className,
       )}

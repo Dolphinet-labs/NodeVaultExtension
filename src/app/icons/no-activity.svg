@@ -300,12 +300,12 @@
 <feBlend mode="normal" in2="effect1_innerShadow_708_16124" result="effect2_innerShadow_708_16124"/>
 </filter>
 <linearGradient id="paint0_linear_708_16124" x1="313.448" y1="139.245" x2="260.01" y2="135.779" gradientUnits="userSpaceOnUse">
-<stop stop-color="#80EF6E"/>
-<stop offset="1" stop-color="#80EF6E"/>
+<stop stop-color="#00A3FF"/>
+<stop offset="1" stop-color="#00A3FF"/>
 </linearGradient>
 <linearGradient id="paint1_linear_708_16124" x1="314.521" y1="143.227" x2="285.187" y2="140.431" gradientUnits="userSpaceOnUse">
-<stop stop-color="#80EF6E"/>
-<stop offset="1" stop-color="#80EF6E"/>
+<stop stop-color="#00A3FF"/>
+<stop offset="1" stop-color="#00A3FF"/>
 </linearGradient>
 <linearGradient id="paint2_linear_708_16124" x1="121.49" y1="257.99" x2="12.0191" y2="293.073" gradientUnits="userSpaceOnUse">
 <stop stop-color="#F8FCFD"/>

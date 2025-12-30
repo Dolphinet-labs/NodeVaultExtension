@@ -1,8 +1,9 @@
 import classNames from "clsx";
 import type { FC, ReactNode } from "react";
 import Input from "./Input";
+import { NODEVAULT_SAFETY_TIPS_URL, NODEVAULT_SUPPORT_EMAIL } from "app/constants/links";
 
-const TIPS = "https://wigwam.app/safety-tips";
+const TIPS = NODEVAULT_SAFETY_TIPS_URL;
 
 const Title: FC<{ title?: string; className?: string }> = ({
   title,
@@ -23,12 +24,12 @@ const Content: FC<{ children?: ReactNode }> = ({ children }) => {
   return (
     <div className="text-left font-medium text-base text-brand-lightgray opacity-75">
       <p>
-        If you have trouble working with the Wigwam extension, <br />
+        If you have trouble working with the NodeVault extension, <br />
         please contact us via email:
       </p>
       <p className="mt-2">
         <Input
-          value="info@wigwam.app"
+          value={NODEVAULT_SUPPORT_EMAIL}
           id="support-email"
           readOnly
           tabIndex={-1}

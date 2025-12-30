@@ -8,18 +8,29 @@ import { ReactComponent as MediumIcon } from "app/icons/medium.svg";
 import { ReactComponent as DiscordIcon } from "app/icons/discord.svg";
 
 import Separator from "app/components/elements/Seperator";
-import { ReactComponent as WigwamLogo } from "app/icons/Wigwam.svg";
+import NodeVaultLogoImage from "app/images/nodevault.png";
+import {
+  NODEVAULT_CONTACT_URL,
+  NODEVAULT_HELP_URL,
+  NODEVAULT_PRIVACY_URL,
+  NODEVAULT_TERMS_URL,
+  NODEVAULT_WEBSITE_URL,
+} from "app/constants/links";
 
 const About: FC = () => {
   return (
     <div className="flex flex-col items-start pt-3">
       <div className="flex items-center">
-        <WigwamLogo className="w-[3.25rem] h-auto" />
-        <span className="text-2xl font-black ml-4">Wigwam</span>
+        <img
+          src={NodeVaultLogoImage}
+          alt="NodeVault"
+          className="w-[3.25rem] h-auto"
+        />
+        <span className="text-2xl font-black ml-4">NodeVault</span>
       </div>
 
       <p className="text-brand-font text-sm mt-6 mb-8 max-w-[20rem]">
-        Wigwam lets you explore DeFi and NFTs in a safer, faster and more modern
+        NodeVault lets you explore DeFi and NFTs in a safer, faster and more modern
         way.
       </p>
 
@@ -115,23 +126,23 @@ const Link: FC<LinkProps> = ({ label, href, className }) => (
 const usefulLinks = [
   {
     label: "Website",
-    href: "https://wigwam.app/",
+    href: NODEVAULT_WEBSITE_URL,
   },
   {
     label: "Contact us",
-    href: "https://wigwam.app/contact",
+    href: NODEVAULT_CONTACT_URL,
   },
   {
     label: "Help",
-    href: "https://wigwam.app/help",
+    href: NODEVAULT_HELP_URL,
   },
   {
     label: "Terms of Use",
-    href: "https://wigwam.app/terms",
+    href: NODEVAULT_TERMS_URL,
   },
   {
     label: "Privacy policy",
-    href: "https://wigwam.app/privacy",
+    href: NODEVAULT_PRIVACY_URL,
   },
 ];
 

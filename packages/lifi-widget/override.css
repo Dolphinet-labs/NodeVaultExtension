@@ -61,7 +61,7 @@ div::-webkit-scrollbar-thumb {
 }
 
 .switcher.active {
-  background: #75db65;
+  background: #00a3ff;
   justify-content: flex-end;
 }
 
@@ -94,7 +94,7 @@ div::-webkit-scrollbar-thumb {
 }
 
 .routeEllips.selected {
-  background: #80ef6e;
+  background: #00a3ff;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -118,7 +118,7 @@ div::-webkit-scrollbar-thumb {
 }
 
 .txStatus.complete {
-  background: #80ef6e;
+  background: #00a3ff;
 }
 
 .txStatus.progress {
@@ -157,7 +157,7 @@ div::-webkit-scrollbar-thumb {
 }
 
 .selectedChain {
-  border: 1px solid #80ef6e !important;
+  border: 1px solid #00a3ff !important;
 }
 
 .selectedChain p {

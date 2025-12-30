@@ -28,6 +28,7 @@ import SeedPhraseWords from "app/components/blocks/SeedPhraseWords";
 import { ReactComponent as RevealIcon } from "app/icons/reveal.svg";
 import Select from "app/components/elements/Select";
 import { AUTO_LOCK_TIMEOUTS } from "fixtures/settings";
+import { NODEVAULT_PRIVACY_URL } from "app/constants/links";
 
 const prepareTimeout = (timeout: number) => ({
   key: timeout,
@@ -97,7 +98,7 @@ const Security: FC = () => {
             You should always have a backup copy of it.
             <br />
             <strong>Never, ever share</strong> your Secret Phrase, not even with
-            Wigwam!
+            NodeVault!
           </p>
 
           <Button
@@ -122,7 +123,7 @@ const Security: FC = () => {
       <p className="mb-6 text-sm text-brand-font max-w-[30rem]">
         Read more about our{" "}
         <a
-          href="https://wigwam.app/privacy"
+          href={NODEVAULT_PRIVACY_URL}
           target="_blank"
           rel="nofollow noreferrer"
           className="underline"
@@ -138,7 +139,7 @@ const Security: FC = () => {
           <>
             Analytics
             <p className="text-xs text-brand-placeholder max-w-[18.75rem]">
-              Anonymous. Help us make Wigwam better.
+              Anonymous. Help us make NodeVault better.
             </p>
           </>
         }
@@ -240,7 +241,7 @@ const SeedPhraseModal = memo<SecondaryModalProps>(({ open, onOpenChange }) => {
               <br />
               We <strong>WILL NEVER</strong> ask for this information.
               <br />
-              No Support Agent, Tech Team Member, Wigwam Team Member, or
+              No Support Agent, Tech Team Member, NodeVault Team Member, or
               Security Specialist can request it. Sharing this information is
               strictly prohibited!
             </span>

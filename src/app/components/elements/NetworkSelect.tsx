@@ -93,7 +93,7 @@ const NetworkSelect: FC<NetworkSelectProps> = ({
         currentItemClassName,
       )}
       currentListItemClassName={classNames(
-        "!bg-brand-main/20 border-2 border-[#80EF6E]",
+        "!bg-brand-main/20 border-2 border-[#00A3FF]",
         size === "small" ? "!py-1.5" : "!py-2",
         currentListItemClassName,
       )}

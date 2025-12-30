@@ -200,6 +200,8 @@ export const fetchAllUsedNetworks = withOfflineCache(
   async (accountAddress: string) => {
     const items = await Promise.all(
       [
+        1520, // dolphinet
+        1519, // dolphinet_testnet
         42161, // arbitrum
         43114, // avalanche
         8453, // base
@@ -215,15 +217,31 @@ export const fetchAllUsedNetworks = withOfflineCache(
         534352, // scroll
       ].map(async (chainId) => ({
         chainId,
-        tokens: await fetchAccountTokens(chainId, accountAddress).catch(
-          () => [],
-        ),
+        tokens: await fetchAccountTokens(chainId, accountAddress).catch(() => []),
       })),
     );
 
-    return items
-      .filter(({ tokens }) => tokens.length > 0)
-      .map(({ chainId }) => chainId);
+    const used: number[] = [];
+
+    for (const { chainId, tokens } of items) {
+      if (tokens.length > 0) {
+        used.push(chainId);
+        continue;
+      }
+
+      // Dolphinet: treat native token balance as a signal that the network is "used"
+      // even if there are no ERC20 tokens / NFTs.
+      if (chainId === 1520 || chainId === 1519) {
+        const bal = await getBalanceFromChain(
+          chainId,
+          NATIVE_TOKEN_SLUG,
+          accountAddress,
+        ).catch(() => null);
+        if (bal && bal > 0n) used.push(chainId);
+      }
+    }
+
+    return used;
 
     // const res = await indexerApi.get(
     //   `/c/v1/address/${accountAddress}/activity/`,

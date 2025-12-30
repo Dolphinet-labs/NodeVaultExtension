@@ -74,7 +74,7 @@ const Switcher: FC<SwitcherProps> = ({
             : "w-8 h-[1.5rem] p-[.175rem]",
           "rounded-full",
           "transition-colors",
-          !checked ? "bg-[#93ACAF]" : "bg-[#80EF6E]",
+          !checked ? "bg-[#93ACAF]" : "bg-[#00A3FF]",
         )}
       >
         <SwitchPrimitive.SwitchThumb

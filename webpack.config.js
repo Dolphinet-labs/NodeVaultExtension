@@ -60,11 +60,15 @@ const WIGWAM_ENV_PATTERN = /^WIGWAM_/i;
 const {
   RELEASE_ENV = "false",
   TARGET_BROWSER = "chrome",
-  WIGWAM_WEBSITE_ORIGIN = "",
   SOURCE_MAP: SOURCE_MAP_ENV,
   IMAGE_INLINE_SIZE_LIMIT: IMAGE_INLINE_SIZE_LIMIT_ENV = "10000",
   WEBPACK_ANALYZE = "false",
 } = process.env;
+
+// Brand/website configuration (used in manifest templating and runtime env injection).
+// Keep this hard-coded for release builds to avoid leaking legacy Wigwam defaults
+// from the build environment.
+const NODEVAULT_WEBSITE_ORIGIN = "https://chain.dolphinode.world";
 const ENV_BADGE = [
   ENV_SHORT === "prod" ? null : ENV_SHORT,
   RELEASE_ENV === "true" ? null : "staging",
@@ -367,6 +371,8 @@ module.exports = {
         }
         return appEnvs;
       })(),
+      // Force NodeVault website origin (override any build environment leftovers).
+      "process.env.WIGWAM_WEBSITE_ORIGIN": JSON.stringify(NODEVAULT_WEBSITE_ORIGIN),
     }),
 
     new webpack.ProvidePlugin({
@@ -439,7 +445,7 @@ module.exports = {
                   pkg,
                   env: ENV_SHORT,
                   envBadge: ENV_BADGE ? `[${ENV_BADGE.toUpperCase()}] ` : "",
-                  website: WIGWAM_WEBSITE_ORIGIN,
+                  website: NODEVAULT_WEBSITE_ORIGIN,
                 }),
               );
               const manifest = transformManifestKeys(json, TARGET_BROWSER);
@@ -496,7 +502,7 @@ module.exports = {
     }),
 
     new WebpackBar({
-      name: "Wigwam",
+      name: "NodeVault",
       color: "#ffffff",
     }),
 

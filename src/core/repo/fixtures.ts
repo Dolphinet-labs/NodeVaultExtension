@@ -11,9 +11,6 @@ import { networks } from "./helpers";
 
 export async function setupFixtures() {
   try {
-    const allEvmNetworks =
-      process.env.NODE_ENV !== "test" ? await getAllEvmNetworks() : [];
-
     await db.transaction("rw", networks, async () => {
       const existingNetworks = await networks.toArray();
 
@@ -31,6 +28,11 @@ export async function setupFixtures() {
       await networks.bulkPut(mainNets);
 
       if (process.env.NODE_ENV === "test") return;
+
+      // Fetch the extended chain list (best-effort). We intentionally do this
+      // AFTER seeding DEFAULT_NETWORKS so the Networks screen is never empty
+      // on first startup due to a slow/failing API call.
+      const allEvmNetworks = await getAllEvmNetworks().catch(() => []);
 
       // Refresh rest
       const allNetsMap = new Map(allEvmNetworks.map((n) => [n.chainId, n]));

@@ -253,7 +253,7 @@ const InteractionWithDapp: FC<{ className?: string }> = ({ className }) => {
                     <div
                       className={classNames(
                         "w-2 min-w-[.375rem] h-2 rounded-full ml-2",
-                        "bg-brand-redone border border-[#92BC78]",
+                        "bg-brand-redone border border-[#5EC6FF]",
                       )}
                     />
                   ) : null}
@@ -274,7 +274,7 @@ const InteractionWithDapp: FC<{ className?: string }> = ({ className }) => {
                   "!text-xs !font-medium",
                   accountConnected
                     ? "!bg-[#FE00001F] !text-brand-redtext hover:!shadow-buttondanger focus-visible:!shadow-buttondanger"
-                    : "!bg-[#80EF6E1F] text-brand-redone",
+                    : "!bg-[#00A3FF1F] text-brand-redone",
                 )}
                 onClick={handleToggleConnect}
               >
@@ -295,10 +295,10 @@ const InteractionWithDapp: FC<{ className?: string }> = ({ className }) => {
                 content={
                   <p>
                     When enabled - use the MetaMask connection button to connect
-                    to dApps only if the Wigwam wallet option is unavailable on
+                    to dApps only if the NodeVault wallet option is unavailable on
                     the website.
                     <br />
-                    Otherwise, choose only Wigwam wallet!
+                    Otherwise, choose only NodeVault wallet!
                   </p>
                 }
                 placement="bottom-end"

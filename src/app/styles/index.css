@@ -257,13 +257,13 @@ div[data-radix-scroll-area-viewport].viewportBlock > div {
 
 @keyframes brand-shadow-pulse {
   0% {
-    box-shadow: 0 5px 25px rgba(255, 0, 45, 0);
+    box-shadow: 0 5px 25px rgba(0, 163, 255, 0);
   }
   50% {
-    box-shadow: 0 5px 25px rgba(255, 0, 45, 0.5);
+    box-shadow: 0 5px 25px rgba(0, 163, 255, 0.55);
   }
   100% {
-    box-shadow: 0 5px 25px rgba(255, 0, 45, 0);
+    box-shadow: 0 5px 25px rgba(0, 163, 255, 0);
   }
 }
 
@@ -377,7 +377,7 @@ div[data-radix-scroll-area-viewport].viewportBlock > div {
   animation-delay: -0.4s;
 }
 .atom-spinner:after {
-  color: rgb(128, 239, 110);
+  color: rgb(0, 163, 255);
   transform: rotateY(70deg);
 }
 

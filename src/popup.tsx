@@ -3,7 +3,14 @@ import { PorterChannel } from "core/types";
 
 import { mount } from "app/root";
 import PopupApp from "app/components/PopupApp";
+import { initProfiles } from "lib/ext/profile";
+import { setupFixtures } from "core/repo";
 
-porter.connect(PorterChannel.Wallet);
+(async () => {
+  // Ensure profile-scoped DB keys are available before touching Dexie/fixtures.
+  await initProfiles();
+  await setupFixtures();
 
-mount(<PopupApp />);
+  porter.connect(PorterChannel.Wallet);
+  mount(<PopupApp />);
+})();

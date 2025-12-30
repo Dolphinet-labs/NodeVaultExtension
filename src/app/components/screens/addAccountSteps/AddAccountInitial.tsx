@@ -89,7 +89,7 @@ const ChooseAddAccountWay = memo<{ onLedgerOpened?: () => void }>(
         <AddAccountHeader
           className="mb-12"
           description={
-            isInitialWallet ? "Join the future of finance with Wigwam" : null
+            isInitialWallet ? "Join the future of finance with NodeVault" : null
           }
         >
           {isInitialWallet ? "Let’s start your journey" : "Add more wallets"}
@@ -133,7 +133,7 @@ const ChooseAddAccountWay = memo<{ onLedgerOpened?: () => void }>(
                   "transition-colors",
                   "hover:bg-brand-main/5",
                   "text-left",
-                  promotional && "bg-[#80EF6E]/20 hover:bg-[#80EF6E]/40",
+                  promotional && "bg-[#00A3FF]/20 hover:bg-[#00A3FF]/40",
                 )}
                 onClick={action}
               >

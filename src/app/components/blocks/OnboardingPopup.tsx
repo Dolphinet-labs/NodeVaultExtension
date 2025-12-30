@@ -9,7 +9,7 @@ import Button from "app/components/elements/Button";
 import OnboardingFirstImage from "app/images/onboarding_first.png";
 import OnboardingSecondImage from "app/images/onboarding_second.png";
 import OnboardingThirdImage from "app/images/onboarding_third.png";
-import WigwamLogoImage from "app/images/wigwam.png";
+import NodeVaultLogoImage from "app/images/nodevault.png";
 
 type TStepContent = {
   title: string;
@@ -21,19 +21,19 @@ const stepsContent: TStepContent[] = [
   {
     title: "Trade and explore",
     description:
-      "Instantly trade over 2,500 tokens, connect with hundreds of dApps, and create or sell NFTs in the Web3 world, all through Wigwam",
+      "Instantly trade over 2,500 tokens, connect with hundreds of dApps, and create or sell NFTs in the Web3 world, all through NodeVault",
     image: OnboardingFirstImage,
   },
   {
     title: "Easy access",
     description:
-      "If you can't find a Wigwam button when connecting to a dApp, you can effortlessly connect to Wigwam using MetaMask button instead, as this option is automatically available",
+      "If you can't find a NodeVault button when connecting to a dApp, you can effortlessly connect to NodeVault using MetaMask button instead, as this option is automatically available",
     image: OnboardingSecondImage,
   },
   {
     title: "Always near",
     description:
-      "Pin the Wigwam extension on your browser toolbar for fast access to your tokens and to navigate the Web3 space more efficiently",
+      "Pin the NodeVault extension on your browser toolbar for fast access to your tokens and to navigate the Web3 space more efficiently",
     image: OnboardingThirdImage,
   },
 ];
@@ -69,11 +69,11 @@ const OnBoardingContent: FC = () => {
         <section className="mb-6 flex flex-col items-center">
           <img
             className="mb-6 w-11 h-11 rounded-md"
-            src={WigwamLogoImage}
-            alt="wigwam_logo"
+            src={NodeVaultLogoImage}
+            alt="nodevault_logo"
           />
           <h3 className="mb-6 text-[1.75rem] font-bold text-center">
-            Welcome to Wigwam:
+            Welcome to NodeVault:
             <br />
             Your Gateway to the Web3 World!
           </h3>
@@ -155,7 +155,7 @@ const StepLine: FC<{ active: boolean }> = ({ active }) => (
   <span
     className={classNames(
       "w-16 h-1 bg-[#D9D9D9]/[.3] rounded-full",
-      "relative after:absolute after:h-full after:rounded-full after:bg-[#80EF6E]",
+      "relative after:absolute after:h-full after:rounded-full after:bg-[#00A3FF]",
       "after:transition-all after:duration-200",
       active ? "after:w-full" : "after:w-0",
     )}

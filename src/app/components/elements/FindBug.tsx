@@ -1,9 +1,6 @@
 import classNames from "clsx";
 import type { FC, ReactNode } from "react";
-
-const ARTICLE_LINK =
-  "https://wigwam.app/blog/find-a-bug-earn-a-reward-with-wigwam-wallet";
-const DS_CHANNEL = "https://discord.gg/MAG2fnSqSK";
+import { NODEVAULT_SUPPORT_EMAIL } from "app/constants/links";
 
 const Title: FC<{ className?: string }> = ({ className }) => {
   return (
@@ -22,28 +19,13 @@ const Content: FC<{ children?: ReactNode }> = ({ children }) => {
     <div className="mb-6 flex flex-col w-full ml-6 text-left font-medium text-base text-brand-lightgray opacity-75">
       <p className="mb-3 text-lg">How do I participate in it?</p>
       <ol className="list-decimal ml-4">
-        <li>Find a bug 🐞.</li>
+        <li>Find a bug.</li>
         <li>
-          Check our{" "}
-          <a
-            href={ARTICLE_LINK}
-            className="underline"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            participation rules.
+          Send a report to{" "}
+          <a className="underline" href={`mailto:${NODEVAULT_SUPPORT_EMAIL}`}>
+            {NODEVAULT_SUPPORT_EMAIL}
           </a>
-        </li>
-        <li>
-          Report to the{" "}
-          <a
-            href={DS_CHANNEL}
-            className="underline"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            #Bug-report channel on our Discord.
-          </a>
+          .
         </li>
       </ol>
     </div>

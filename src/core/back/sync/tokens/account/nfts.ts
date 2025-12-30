@@ -17,15 +17,24 @@ import { getBalanceFromChain } from "../../chain";
 import { parseContentType } from "../../utils";
 import { prepareAccountTokensSync } from "./utils";
 import { fetchAccountNFTs } from "../../indexer";
+import {
+  fetchAddressNftCollections,
+  fetchAddressTokens,
+  fetchTokenInstances,
+  isBlockscoutV2ApiUrl,
+} from "../../explorer/blockscoutV2";
 
 export const syncAccountNFTs = memoize(
   async (chainId: number, accountAddress: string) => {
     const network = await getNetwork(chainId);
-    if (network.type !== "mainnet") return;
+    const isDolphinet = network.chainTag === "dolphinet";
+    if (!isDolphinet && network.type !== "mainnet") return;
 
     const [freshAccTokensData, { existingTokensMap, addToken, releaseToRepo }] =
       await Promise.all([
-        fetchAccountNFTs(chainId, accountAddress),
+        isDolphinet
+          ? fetchDolphinetNfts(chainId, accountAddress)
+          : fetchAccountNFTs(chainId, accountAddress),
         prepareAccountTokensSync<AccountNFT>(
           chainId,
           accountAddress,
@@ -53,8 +62,8 @@ export const syncAccountNFTs = memoize(
 
         // Skip to just fetch balance if disabled
         if (existing?.status === TokenStatus.Disabled) continue;
-        // Skip no name tokens
-        if (!existing && !nftData.image_uri && !nftData.content_uri) {
+        // Skip no name tokens (keep Dolphinet entries even without media; metadata can be hydrated via tokenURI)
+        if (!isDolphinet && !existing && !nftData.image_uri && !nftData.content_uri) {
           continue;
         }
 
@@ -166,6 +175,125 @@ export const syncAccountNFTs = memoize(
     maxAge: 60_000, // 60 sec
   },
 );
+
+async function fetchDolphinetNfts(chainId: number, accountAddress: string) {
+  const network = await getNetwork(chainId);
+  const { explorerApiUrl } = network;
+  if (!explorerApiUrl || !isBlockscoutV2ApiUrl(explorerApiUrl)) {
+    throw new Error("Blockscout v2 API is not configured");
+  }
+
+  // Prefer Dolphinet-specific strategy (same as alpha-wallet-android):
+  // 1) list contracts held by address via /addresses/:addr/tokens?type=ERC-721
+  // 2) fetch /tokens/:contract/instances and filter by owner.hash
+  //
+  // Fallback to standard blockscout collections if needed.
+  const heldContracts = await fetchAddressTokens(
+    explorerApiUrl,
+    accountAddress,
+    "ERC-721",
+  ).catch(() => []);
+
+  if (heldContracts.length === 0) {
+    const collections = await fetchAddressNftCollections(
+      explorerApiUrl,
+      accountAddress,
+    );
+
+    // Map Blockscout v2 shape to NSx-like shape consumed by this module
+    return collections.map((c) => ({
+      contract_address: c.token.address_hash,
+      contract_name: c.token.name ?? null,
+      assets: (c.token_instances ?? []).map((i) => ({
+        contract_address: c.token.address_hash,
+        contract_name: c.token.name ?? null,
+        contract_token_id: i.id,
+        token_id: i.id,
+        erc_type: (i.token_type || "").toLowerCase(),
+        amount: i.value,
+        token_uri: null,
+        metadata_json: i.metadata ?? null,
+        name: i.metadata?.name ?? null,
+        content_type: null,
+        content_uri: i.animation_url ?? null,
+        description: i.metadata?.description ?? null,
+        image_uri: i.image_url ?? null,
+        external_link: i.external_app_url ?? i.metadata?.external_url ?? null,
+        latest_trade_price: null,
+        latest_trade_symbol: null,
+        latest_trade_token: null,
+        latest_trade_timestamp: null,
+        nftscan_id: `${c.token.address_hash}:${i.id}`,
+        nftscan_uri: i.image_url ?? null,
+        small_nftscan_uri: null,
+        attributes: i.metadata?.attributes ?? null,
+      })),
+    }));
+  }
+
+  const addrLower = accountAddress.toLowerCase();
+  const grouped = new Map<
+    string,
+    { contract_address: string; contract_name: string | null; assets: any[] }
+  >();
+
+  // Avoid excessive API calls (similar to android: max 10 contracts per sync)
+  const maxContracts = Math.min(heldContracts.length, 10);
+  for (let i = 0; i < maxContracts; i++) {
+    const token = heldContracts[i]?.token;
+    const contract = token?.address_hash;
+    if (!contract) continue;
+
+    const instances = await fetchTokenInstances(explorerApiUrl, contract).catch(() => []);
+    if (!instances.length) continue;
+
+    for (const inst of instances) {
+      const ownerHash = (inst as any)?.owner?.hash as string | undefined;
+      if (!ownerHash || ownerHash.toLowerCase() !== addrLower) continue;
+
+      const tokenId = String((inst as any)?.id ?? (inst as any)?.token_id ?? "");
+      if (!tokenId) continue;
+
+      const coll = grouped.get(contract) ?? {
+        contract_address: contract,
+        contract_name: token?.name ?? null,
+        assets: [],
+      };
+
+      coll.assets.push({
+        contract_address: contract,
+        contract_name: token?.name ?? null,
+        contract_token_id: tokenId,
+        token_id: tokenId,
+        erc_type: String((inst as any)?.token_type ?? "erc721").toLowerCase(),
+        amount: String((inst as any)?.value ?? "1"),
+        token_uri: null,
+        metadata_json: (inst as any)?.metadata ?? null,
+        name: (inst as any)?.metadata?.name ?? null,
+        content_type: null,
+        content_uri: (inst as any)?.animation_url ?? null,
+        description: (inst as any)?.metadata?.description ?? null,
+        image_uri: (inst as any)?.image_url ?? null,
+        external_link:
+          (inst as any)?.external_app_url ??
+          (inst as any)?.metadata?.external_url ??
+          null,
+        latest_trade_price: null,
+        latest_trade_symbol: null,
+        latest_trade_token: null,
+        latest_trade_timestamp: null,
+        nftscan_id: `${contract}:${tokenId}`,
+        nftscan_uri: (inst as any)?.image_url ?? null,
+        small_nftscan_uri: null,
+        attributes: (inst as any)?.metadata?.attributes ?? null,
+      });
+
+      grouped.set(contract, coll);
+    }
+  }
+
+  return Array.from(grouped.values());
+}
 
 function getNextStatus(
   existing: AccountToken | undefined,
