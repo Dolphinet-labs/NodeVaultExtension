@@ -16,17 +16,39 @@ import {
 
 import { porter } from "./base";
 
+async function withRetry<T>(fn: () => Promise<T>, opts?: { retries?: number }) {
+  const retries = opts?.retries ?? 1;
+
+  let lastErr: unknown;
+  for (let i = 0; i <= retries; i++) {
+    try {
+      return await fn();
+    } catch (e) {
+      lastErr = e;
+      // small backoff: service worker may be waking up
+      if (i < retries) {
+        await new Promise((r) => setTimeout(r, 300));
+      }
+    }
+  }
+
+  throw lastErr;
+}
+
 export async function getWalletState() {
   const type = MessageType.GetWalletState;
-  const res = await porter.request(
-    { type },
-    {
-      // This request is base, it's called first
-      // If no answer during this time - there is a possibility
-      // that the Service Worker has stalled or smth happen
-      // So, let's not delay the user
-      timeout: 5_000,
-    },
+  const res = await withRetry(
+    () =>
+      porter.request(
+        { type },
+        {
+          // This request is base, it's called first.
+          // If no answer during this time - there is a possibility
+          // that the Service Worker has stalled or is still waking up.
+          timeout: 5_000,
+        },
+      ),
+    { retries: 1 },
   );
   assert(res?.type === type);
 
@@ -106,7 +128,9 @@ export async function changePassword(
 export async function getAccounts() {
   const type = MessageType.GetAccounts;
 
-  const res = await porter.request({ type });
+  const res = await withRetry(() => porter.request({ type }, { timeout: 5_000 }), {
+    retries: 1,
+  });
   assert(res?.type === type);
 
   return res.accounts;

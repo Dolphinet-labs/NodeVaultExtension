@@ -6,6 +6,7 @@ import { WalletStatus } from "core/types";
 import { walletStateAtom } from "app/atoms";
 import { useLocked } from "app/hooks";
 import { openInTab } from "app/helpers";
+import { ToastOverflowProvider, ToastProvider } from "app/hooks/toast";
 
 import BaseProvider from "./BaseProvider";
 import Unlock from "./screens/Unlock";
@@ -16,8 +17,14 @@ import ReceivePopup from "./blocks/ReceiveModal";
 
 const PopupApp: FC = () => (
   <BaseProvider>
-    <PopupRouter />
-    <PopupModals />
+    <ToastProvider>
+      <div className="relative w-full h-full">
+        <ToastOverflowProvider isCorner>
+          <PopupRouter />
+          <PopupModals />
+        </ToastOverflowProvider>
+      </div>
+    </ToastProvider>
   </BaseProvider>
 );
 
