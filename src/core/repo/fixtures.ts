@@ -9,68 +9,84 @@ import { DEFAULT_NETWORKS } from "fixtures/networks";
 import { db } from "./schema";
 import { networks } from "./helpers";
 
+let setupFixturesPromise: Promise<void> | null = null;
+
 export async function setupFixtures() {
-  try {
-    await db.transaction("rw", networks, async () => {
-      const existingNetworks = await networks.toArray();
+  if (setupFixturesPromise) return setupFixturesPromise;
 
-      const extNetsMap = new Map(existingNetworks.map((n) => [n.chainId, n]));
-      const mainNets: Network[] = [];
+  setupFixturesPromise = (async () => {
+    try {
+      await db.transaction("rw", networks, async () => {
+        const existingNetworks = await networks.toArray();
 
-      for (const net of DEFAULT_NETWORKS) {
-        const existing = extNetsMap.get(net.chainId);
+        const extNetsMap = new Map(existingNetworks.map((n) => [n.chainId, n]));
+        const mainNets: Network[] = [];
 
-        mainNets.push(existing ? mergeNetwork(existing, net) : net);
+        for (const net of DEFAULT_NETWORKS) {
+          const existing = extNetsMap.get(net.chainId);
 
-        if (existing) extNetsMap.delete(net.chainId);
-      }
+          mainNets.push(existing ? mergeNetwork(existing, net) : net);
 
-      await networks.bulkPut(mainNets);
+          if (existing) extNetsMap.delete(net.chainId);
+        }
 
-      if (process.env.NODE_ENV === "test") return;
+        await networks.bulkPut(mainNets);
 
-      // Fetch the extended chain list (best-effort). We intentionally do this
-      // AFTER seeding DEFAULT_NETWORKS so the Networks screen is never empty
-      // on first startup due to a slow/failing API call.
-      const allEvmNetworks = await getAllEvmNetworks().catch(() => []);
+        if (process.env.NODE_ENV === "test") return;
 
-      // Refresh rest
-      const allNetsMap = new Map(allEvmNetworks.map((n) => [n.chainId, n]));
+        // Fetch the extended chain list (best-effort). We intentionally do this
+        // AFTER seeding DEFAULT_NETWORKS so the Networks screen is never empty
+        // on first startup due to a slow/failing API call.
+        const allEvmNetworks = await getAllEvmNetworks().catch(() => []);
 
-      const restNets = Array.from(extNetsMap.values()).map((net) => {
-        const evmData = allNetsMap.get(net.chainId);
+        // Refresh rest
+        const allNetsMap = new Map(allEvmNetworks.map((n) => [n.chainId, n]));
 
-        // Localhost
-        if (net.chainId === 1337) return net;
+        const restNets = Array.from(extNetsMap.values()).map((net) => {
+          const evmData = allNetsMap.get(net.chainId);
 
-        // Manually changed
-        // TODO: Better to merge
-        if (net.manuallyChanged) return net;
+          // Localhost
+          if (net.chainId === 1337) return net;
 
-        return evmData
-          ? mergeNetwork(net, {
-              chainId: evmData.chainId,
-              type: evmData.testnet ? "testnet" : "unknown",
-              chainTag: "",
-              rpcUrls: evmData.rpcUrls.filter((url) => url.startsWith("http")),
-              name: evmData.name,
-              nativeCurrency: evmData.nativeCurrency,
-              explorerUrls: evmData.explorers?.map((exp) => exp.url),
-              explorerApiUrl: evmData.explorers?.find((exp) => exp.apiUrl)
-                ?.apiUrl,
-              faucetUrls: evmData.faucets,
-              iconUrls: evmData.icon && [wrapIpfsNetIcon(evmData.icon.url)],
-              infoUrl: evmData.infoUrl,
-              position: 0,
-            })
-          : net;
+          // Manually changed
+          // TODO: Better to merge
+          if (net.manuallyChanged) return net;
+
+          return evmData
+            ? mergeNetwork(net, {
+                chainId: evmData.chainId,
+                type: evmData.testnet ? "testnet" : "unknown",
+                chainTag: "",
+                rpcUrls: evmData.rpcUrls.filter((url) =>
+                  url.startsWith("http"),
+                ),
+                name: evmData.name,
+                nativeCurrency: evmData.nativeCurrency,
+                explorerUrls: evmData.explorers?.map((exp) => exp.url),
+                explorerApiUrl: evmData.explorers?.find((exp) => exp.apiUrl)
+                  ?.apiUrl,
+                faucetUrls: evmData.faucets,
+                iconUrls: evmData.icon && [wrapIpfsNetIcon(evmData.icon.url)],
+                infoUrl: evmData.infoUrl,
+                position: 0,
+              })
+            : net;
+        });
+
+        await networks.bulkPut(restNets);
       });
+    } catch (err) {
+      // Avoid noisy logs in production; this is best-effort and defaults are seeded above.
+      if (process.env.NODE_ENV !== "production") {
+        console.error("[setupFixtures] failed", err);
+      }
+    } finally {
+      // Allow re-run if needed (e.g. after a DB reset).
+      setupFixturesPromise = null;
+    }
+  })();
 
-      await networks.bulkPut(restNets);
-    });
-  } catch (err) {
-    console.error(err);
-  }
+  return setupFixturesPromise;
 }
 
 function mergeNetwork(saved: Network, toMerge: Network): Network {

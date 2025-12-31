@@ -68,14 +68,6 @@ const NftInfo: FC = () => {
     tokenInfo = undefined;
   }
 
-  // Debug only; keep hooks order stable.
-  useEffect(() => {
-    if (process.env.RELEASE_ENV === "false") {
-      // eslint-disable-next-line no-console
-      console.info(tokenInfo);
-    }
-  }, [tokenInfo]);
-
   useTokenActivitiesSync(
     chainId,
     currentAccount.address,
