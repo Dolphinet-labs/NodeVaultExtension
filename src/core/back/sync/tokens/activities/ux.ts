@@ -15,6 +15,7 @@ export async function syncUxTokenActivities(token: AccountToken) {
   const { chainId, tokenSlug, accountAddress, tokenType } = token;
 
   if (tokenType !== TokenType.Asset || tokenSlug === NATIVE_TOKEN_SLUG) return;
+  if (!process.env.WIGWAM_INDEXER_API) return;
 
   const latestItem = await getLatestTokenActivity(token);
   const { address: tokenAddress } = parseTokenSlug(tokenSlug);

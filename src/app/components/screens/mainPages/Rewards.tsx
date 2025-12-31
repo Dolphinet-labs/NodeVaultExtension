@@ -157,6 +157,10 @@ const RewardsContent = memo(() => {
       setProcessing(true);
 
       try {
+        if (!process.env.WIGWAM_INDEXER_API) {
+          throw new Error("Rewards service is disabled in this build.");
+        }
+
         if (!analytics.enabled) {
           setAnalytics({
             enabled: true,
@@ -471,6 +475,10 @@ const TelegramPromosContent = memo(() => {
       setProcessing(true);
 
       try {
+        if (!process.env.WIGWAM_INDEXER_API) {
+          throw new Error("Rewards service is disabled in this build.");
+        }
+
         let username = values.username;
         if (username.startsWith("@")) {
           username = username.slice(1);

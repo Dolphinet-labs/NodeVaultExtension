@@ -44,6 +44,13 @@ const AuthSignatureModal: FC = () => {
           return;
         }
 
+        if (!process.env.WIGWAM_INDEXER_API) {
+          // Indexer integration is disabled for NodeVault builds.
+          await storage.put(Setting.RequiredAuthSig, []);
+          setModalOpened(false);
+          return;
+        }
+
         const authMessage = await fetch(
           `${process.env.WIGWAM_INDEXER_API}/auth-message`,
         ).then((r) => r.text());

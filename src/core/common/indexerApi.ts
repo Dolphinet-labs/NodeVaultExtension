@@ -1,11 +1,23 @@
 import axios from "axios";
 
+const INDEXER_BASE_URL = process.env.WIGWAM_INDEXER_API || "";
+const INDEXER_API_KEY = process.env.WIGWAM_INDEXER_API_KEY || "";
+
 export const indexerApi = axios.create({
-  baseURL: process.env.WIGWAM_INDEXER_API!,
+  // Note: when disabled, keep baseURL empty and block requests via interceptor.
+  baseURL: INDEXER_BASE_URL,
   timeout: 120_000,
   headers: {
-    "X-API-KEY": process.env.WIGWAM_INDEXER_API_KEY,
+    "X-API-KEY": INDEXER_API_KEY,
   },
+});
+
+indexerApi.interceptors.request.use(async (config) => {
+  // Prevent accidental requests to extension origin when baseURL is empty.
+  if (!INDEXER_BASE_URL) {
+    throw new Error("Indexer API is disabled");
+  }
+  return config;
 });
 
 indexerApi.interceptors.request.use(async (config) => {

@@ -14,7 +14,14 @@ export const getDxChain = memoize(async (chainId: number) => {
 });
 
 export const fetchDxChainList = memoize(
-  () => indexerApi.get<DxChain[]>("/d/v1/chain/list").then((r) => r.data),
+  async () => {
+    if (!process.env.WIGWAM_INDEXER_API) return [];
+    try {
+      return await indexerApi.get<DxChain[]>("/d/v1/chain/list").then((r) => r.data);
+    } catch {
+      return [];
+    }
+  },
   {
     maxAge: 60 * 60_000, // 1 hour
   },

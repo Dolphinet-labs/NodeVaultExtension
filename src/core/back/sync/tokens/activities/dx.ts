@@ -14,6 +14,8 @@ import { getLatestTokenActivity, prepareTokenActivitiesRepo } from "./utils";
 export async function syncDxTokenActivities(token: AccountToken) {
   const { chainId, tokenSlug, accountAddress, tokenType } = token;
 
+  if (!process.env.WIGWAM_INDEXER_API) return;
+
   // if (tokenSlug !== NATIVE_TOKEN_SLUG) return;
 
   const dxChain = await getDxChain(chainId);

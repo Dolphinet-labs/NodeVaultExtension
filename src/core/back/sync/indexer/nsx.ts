@@ -8,6 +8,10 @@ export const fetchAccountNFTs = async (
   chainId: number,
   accountAddress: string,
 ) => {
+  if (!process.env.WIGWAM_INDEXER_API) {
+    return [];
+  }
+
   const { data } = await indexerApi.get<NSxResponse>(
     `/ns/v2/account/own/all/${accountAddress}`,
     {
