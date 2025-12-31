@@ -13,6 +13,12 @@ type ErrBondProps = Pick<ComponentProps<typeof ErrorBoundary>, "onReset">;
 
 const ErrBond: FC<ErrBondProps> = (props) => (
   <ErrorBoundary
+    onError={(error, info) => {
+      // In production we intentionally show a generic UI, but we still need
+      // actionable diagnostics for intermittent cold-start issues.
+      console.error("[ErrBond] Unhandled error:", error);
+      console.error("[ErrBond] Component stack:", info?.componentStack);
+    }}
     fallbackRender={({ error, resetErrorBoundary }) => (
       <div className="w-full h-screen flex items-center justify-center">
         <div className="p-6">

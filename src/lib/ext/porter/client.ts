@@ -10,15 +10,32 @@ import {
   PorterDisconnectedError,
 } from "./helpers";
 
+const DEFAULT_COLD_START_RETRY_TYPES = new Set<string>([
+  // Safe, read-only requests that are frequently called at app start.
+  "GET_WALLET_STATE",
+  "GET_ACCOUNTS",
+  "GET_APPROVALS",
+  "GET_GAS_PRICES",
+  "GET_SYNC_STATUS",
+  "GET_ONRAMP_CURRENCIES",
+  "GET_TOKEN_DETAILS_URL",
+]);
+
+function delay(ms: number) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
 export class PorterClient<ReqData = any, ResData = unknown> {
   private port?: Runtime.Port;
   private portId = nanoid();
   private reqId = 0;
   private messageHandlers = new Set<(msg: any) => void>();
+  private lastConnectName?: string;
 
   public onFullyDisconnect?: () => void;
 
   connect(name: string, attempts = 0) {
+    this.lastConnectName = name;
     this.port?.disconnect();
 
     const handleReconnect = (err?: any) => {
@@ -63,6 +80,51 @@ export class PorterClient<ReqData = any, ResData = unknown> {
    * Makes a request to background process and returns a response promise
    */
   async request(
+    data: ReqData,
+    opts: { timeout?: number; signal?: AbortSignal } = {},
+  ): Promise<ResData> {
+    const type = (data as any)?.type;
+    const shouldColdStartRetry =
+      typeof type === "string" &&
+      DEFAULT_COLD_START_RETRY_TYPES.has(type) &&
+      // Don't retry "no-timeout" requests to avoid duplicated side effects / hangs.
+      opts.timeout !== 0;
+
+    const maxRetries = shouldColdStartRetry ? 2 : 0;
+    const backoffMs = [150, 350, 800];
+
+    let lastErr: unknown;
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        return await this.requestOnce(data, opts);
+      } catch (e) {
+        lastErr = e;
+
+        const retriable =
+          e instanceof PorterTimeoutError || e instanceof PorterDisconnectedError;
+
+        if (!retriable || attempt >= maxRetries) {
+          throw e;
+        }
+
+        // Best-effort reconnect before retrying (helps when Service Worker is waking).
+        if (this.lastConnectName) {
+          try {
+            this.connect(this.lastConnectName);
+          } catch (err) {
+            // noop - next attempt will surface the real error if still failing.
+            console.warn("porter reconnect failed", err);
+          }
+        }
+
+        await delay(backoffMs[attempt] ?? 800);
+      }
+    }
+
+    throw lastErr;
+  }
+
+  private async requestOnce(
     data: ReqData,
     opts: { timeout?: number; signal?: AbortSignal } = {},
   ): Promise<ResData> {
