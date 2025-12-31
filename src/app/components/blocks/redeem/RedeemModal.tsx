@@ -3,12 +3,17 @@ import classNames from "clsx";
 
 import { SelfActivityKind } from "core/types";
 
+import { t } from "lib/ext/i18n";
+import { useI18NUpdate } from "lib/ext/i18n/react";
+
 import { useAccounts, useChainId, useProvider } from "app/hooks";
+import { useToast } from "app/hooks/toast";
 import SecondaryModal from "app/components/elements/SecondaryModal";
 import Button from "app/components/elements/Button";
 import Input from "app/components/elements/Input";
 import LongTextField from "app/components/elements/LongTextField";
 import { redeemGetNonce, redeemSubmit } from "app/api/redeem";
+import type { RedeemStatus } from "app/hooks/redeem";
 
 type RedeemModalProps = {
   open: boolean;
@@ -18,14 +23,22 @@ type RedeemModalProps = {
     tokenId: string;
     title?: string;
   };
+  onSuccess?: (status: RedeemStatus) => void;
 };
 
 const DOLPHINET_CHAIN_IDS = new Set([1520, 1519]);
 
-const RedeemModal: FC<RedeemModalProps> = ({ open, onOpenChange, token }) => {
+const RedeemModal: FC<RedeemModalProps> = ({
+  open,
+  onOpenChange,
+  token,
+  onSuccess,
+}) => {
+  useI18NUpdate();
   const chainId = useChainId();
   const provider = useProvider();
   const { currentAccount } = useAccounts();
+  const { updateToast } = useToast();
 
   const redeemEnabled = DOLPHINET_CHAIN_IDS.has(chainId);
 
@@ -104,6 +117,22 @@ const RedeemModal: FC<RedeemModalProps> = ({ open, onOpenChange, token }) => {
       }
 
       setSuccess({ alreadyRedeemed: res.alreadyRedeemed, status: res.status });
+
+      const nextStatus = ((): RedeemStatus => {
+        const s = res.status ?? "pending";
+        return (
+          s === "pending" ||
+          s === "confirmed" ||
+          s === "shipping" ||
+          s === "delivered" ||
+          s === "returning"
+            ? s
+            : "pending"
+        );
+      })();
+      onSuccess?.(nextStatus);
+      updateToast(t("redeem.toast.submitted"));
+      handleClose(false);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Redeem failed";
       setError(msg);
@@ -122,63 +151,66 @@ const RedeemModal: FC<RedeemModalProps> = ({ open, onOpenChange, token }) => {
     phone,
     email,
     note,
+    onSuccess,
+    updateToast,
+    handleClose,
   ]);
 
   return (
     <SecondaryModal
       open={open}
       onOpenChange={handleClose}
-      header={token.title ? `Redeem: ${token.title}` : "Redeem"}
+      header={token.title ? `${t("redeem.action")}: ${token.title}` : t("redeem.action")}
       small
       className="max-w-[28rem] items-stretch"
       headerClassName="!text-lg !mb-4"
     >
       {!redeemEnabled ? (
         <div className="text-sm text-brand-gray">
-          Redeem is only available on Dolphinet and Dolphinet Testnet.
+          {t("redeem.unavailable")}
         </div>
       ) : (
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-3 max-h-[55vh] overflow-y-auto pr-1">
             <Input
-              label="Receiver name"
+              label={t("redeem.form.name.label")}
               value={name}
               onChange={(e) => setName(e.currentTarget.value)}
-              placeholder="Name"
+              placeholder={t("redeem.form.name.placeholder")}
               disabled={submitting}
               error={Boolean(error) && !name.trim()}
             />
             <LongTextField
-              label="Shipping address"
+              label={t("redeem.form.address.label")}
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              placeholder="Full address"
+              placeholder={t("redeem.form.address.placeholder")}
               disabled={submitting}
               className="w-full"
               textareaClassName="!h-20"
               error={Boolean(error) && !address.trim()}
             />
             <Input
-              label="Phone"
+              label={t("redeem.form.phone.label")}
               value={phone}
               onChange={(e) => setPhone(e.currentTarget.value)}
-              placeholder="Phone number"
+              placeholder={t("redeem.form.phone.placeholder")}
               disabled={submitting}
               error={Boolean(error) && !phone.trim()}
             />
             <Input
-              label="Email"
+              label={t("redeem.form.email.label")}
               value={email}
               onChange={(e) => setEmail(e.currentTarget.value)}
-              placeholder="Email"
+              placeholder={t("redeem.form.email.placeholder")}
               disabled={submitting}
               error={Boolean(error) && !email.trim()}
             />
             <LongTextField
-              label="Note (optional)"
+              label={t("redeem.form.note.label")}
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="Anything we should know"
+              placeholder={t("redeem.form.note.placeholder")}
               disabled={submitting}
               className="w-full"
               textareaClassName="!h-16"
@@ -190,8 +222,7 @@ const RedeemModal: FC<RedeemModalProps> = ({ open, onOpenChange, token }) => {
                 "border border-brand-main/10 bg-black/10 rounded-[.625rem] p-3",
               )}
             >
-              By submitting, you agree to send your shipping info to NodeVault
-              Redeem service for fulfillment.
+              {t("redeem.form.privacy")}
             </div>
 
             {error && (
@@ -214,7 +245,7 @@ const RedeemModal: FC<RedeemModalProps> = ({ open, onOpenChange, token }) => {
             disabled={!canSubmit}
             className="w-full"
           >
-            {submitting ? "Submitting..." : "Submit"}
+            {submitting ? t("redeem.form.submitting") : t("redeem.form.submit")}
           </Button>
         </div>
       )}

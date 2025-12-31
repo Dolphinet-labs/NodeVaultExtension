@@ -38,5 +38,36 @@
   "walletAlreadyExists": "Ya existe una billetera con la misma dirección",
   "walletLocked": "Billetera bloqueada",
   "walletNameAlreadyExists": "Ya existe una billetera con el mismo nombre",
-  "welcomeTo": "Bienvenido a {{target}}"
+  "welcomeTo": "Bienvenido a {{target}}",
+
+  "common_ok": "OK",
+
+  "redeem.action": "Redeem",
+  "redeem.toast.submitted": "Redeem request submitted",
+  "redeem.unavailable": "Redeem is only available on Dolphinet and Dolphinet Testnet.",
+
+  "redeem.form.name.label": "Receiver name",
+  "redeem.form.name.placeholder": "Name",
+  "redeem.form.address.label": "Shipping address",
+  "redeem.form.address.placeholder": "Full address",
+  "redeem.form.phone.label": "Phone",
+  "redeem.form.phone.placeholder": "Phone number",
+  "redeem.form.email.label": "Email",
+  "redeem.form.email.placeholder": "Email",
+  "redeem.form.note.label": "Note (optional)",
+  "redeem.form.note.placeholder": "Anything we should know",
+  "redeem.form.privacy": "By submitting, you agree to send your shipping info to NodeVault Redeem service for fulfillment.",
+  "redeem.form.submit": "Submit",
+  "redeem.form.submitting": "Submitting...",
+
+  "redeem.status.pending.title": "Pending",
+  "redeem.status.pending.desc": "Pending review and confirmation.",
+  "redeem.status.confirmed.title": "Confirmed",
+  "redeem.status.confirmed.desc": "Approved and preparing shipment.",
+  "redeem.status.shipping.title": "Shipping",
+  "redeem.status.shipping.desc": "In transit.",
+  "redeem.status.delivered.title": "Delivered",
+  "redeem.status.delivered.desc": "Delivered to you.",
+  "redeem.status.returning.title": "Returning",
+  "redeem.status.returning.desc": "Return process in progress."
 }

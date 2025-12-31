@@ -7,6 +7,9 @@ import { AccountNFT } from "core/types";
 import { parseTokenSlug } from "core/common/tokens";
 import { findToken } from "core/client";
 
+import { t } from "lib/ext/i18n";
+import { useI18NUpdate } from "lib/ext/i18n/react";
+
 import { chainIdAtom } from "app/atoms";
 import {
   useChainId,
@@ -16,6 +19,7 @@ import {
   useAccounts,
   useExplorerLink,
   useLazyNetwork,
+  useRedeemStatus,
 } from "app/hooks";
 import { openInTab } from "app/helpers";
 import { Page } from "app/nav";
@@ -34,6 +38,7 @@ import IconedButton from "app/components/elements/IconedButton";
 import PopupModal, { IPopupModalProps } from "./PopupModal";
 import NftOverview from "../nft/NftOverview";
 import RedeemModal from "../redeem/RedeemModal";
+import RedeemStatusModal from "../redeem/RedeemStatusModal";
 
 type NFTOverviewPopupProps = Pick<IPopupModalProps, "open" | "onOpenChange"> & {
   token?: AccountNFT;
@@ -44,10 +49,12 @@ const NFTOverviewPopup: FC<NFTOverviewPopupProps> = ({
   onOpenChange,
   ...rest
 }) => {
+  useI18NUpdate();
   const chainId = useChainId();
   const setInternalChainId = useSetAtom(chainIdAtom);
   const { currentAccount } = useAccounts();
   const [redeemOpened, setRedeemOpened] = useState(false);
+  const [redeemStatusOpened, setRedeemStatusOpened] = useState(false);
 
   const redeemToken = useMemo(() => {
     if (!token?.tokenSlug || !token?.tokenId) return null;
@@ -58,6 +65,19 @@ const NFTOverviewPopup: FC<NFTOverviewPopupProps> = ({
       title: token.name ?? token.tokenId,
     };
   }, [token?.tokenSlug, token?.tokenId, token?.name]);
+
+  const redeemEnabled = chainId === 1520 || chainId === 1519;
+  const { status: redeemStatus, setCachedStatus } = useRedeemStatus(
+    redeemEnabled && redeemToken
+      ? { chainId, contract: redeemToken.contract, tokenId: redeemToken.tokenId }
+      : undefined,
+  );
+
+  const redeemLabel = useMemo(() => {
+    if (!redeemEnabled) return "Open Full";
+    if (!redeemStatus) return t("redeem.action");
+    return t(`redeem.status.${redeemStatus}.title`);
+  }, [redeemEnabled, redeemStatus]);
 
   const currentNetwork = useLazyNetwork();
   const explorerLink = useExplorerLink(currentNetwork);
@@ -200,11 +220,22 @@ const NFTOverviewPopup: FC<NFTOverviewPopupProps> = ({
         <Button
           theme="secondary"
           className="grow !py-[0.63rem] !min-w-[8rem] !rounded-lg"
-          onClick={() => setRedeemOpened(true)}
-          disabled={!redeemToken}
+          onClick={() => {
+            if (!redeemEnabled) {
+              token && openLink({ page: Page.Default, token: token.tokenSlug });
+              return;
+            }
+
+            if (redeemStatus) {
+              setRedeemStatusOpened(true);
+            } else {
+              setRedeemOpened(true);
+            }
+          }}
+          disabled={redeemEnabled && !redeemToken}
         >
           <ExpandIcon className="w-4 h-auto mr-2" />
-          Redeem
+          {redeemLabel}
         </Button>
       </div>
 
@@ -213,6 +244,15 @@ const NFTOverviewPopup: FC<NFTOverviewPopupProps> = ({
           open={redeemOpened}
           onOpenChange={setRedeemOpened}
           token={redeemToken}
+          onSuccess={(s) => setCachedStatus(s)}
+        />
+      )}
+
+      {redeemStatus && (
+        <RedeemStatusModal
+          open={redeemStatusOpened}
+          onOpenChange={setRedeemStatusOpened}
+          status={redeemStatus}
         />
       )}
     </PopupModal>

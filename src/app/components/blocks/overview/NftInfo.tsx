@@ -10,6 +10,9 @@ import { AccountNFT, TokenType } from "core/types";
 import { parseTokenSlug } from "core/common/tokens";
 import { findToken } from "core/client";
 
+import { t } from "lib/ext/i18n";
+import { useI18NUpdate } from "lib/ext/i18n/react";
+
 import { tokenSlugAtom } from "app/atoms";
 import {
   OverflowProvider,
@@ -22,6 +25,7 @@ import {
   useAutoRefreshNftMetadata,
   useAccounts,
   useHideToken,
+  useRedeemStatus,
 } from "app/hooks";
 import { Page } from "app/nav";
 import ScrollAreaContainer from "app/components/elements/ScrollAreaContainer";
@@ -42,15 +46,18 @@ import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
 import TokenActivity from "./TokenActivity";
 import NftOverview from "../nft/NftOverview";
 import RedeemModal from "../redeem/RedeemModal";
+import RedeemStatusModal from "../redeem/RedeemStatusModal";
 
 const DOLPHINET_CHAIN_IDS = new Set([1520, 1519]);
 
 const NftInfo: FC = () => {
+  useI18NUpdate();
   const tokenSlug = useAtomValue(tokenSlugAtom)!;
 
   const chainId = useChainId();
   const { currentAccount } = useAccounts();
   const [redeemOpened, setRedeemOpened] = useState(false);
+  const [redeemStatusOpened, setRedeemStatusOpened] = useState(false);
 
   const currentNetwork = useLazyNetwork();
   const explorerLink = useExplorerLink(currentNetwork);
@@ -100,6 +107,15 @@ const NftInfo: FC = () => {
   const { name, tokenId, rawBalance, detailUrl } = tokenInfo;
   const preparedId = `#${tokenId}`;
   const redeemEnabled = DOLPHINET_CHAIN_IDS.has(chainId);
+  const { status: redeemStatus, setCachedStatus } = useRedeemStatus(
+    redeemEnabled ? { chainId, contract: address, tokenId } : undefined,
+  );
+
+  const redeemLabel = useMemo(() => {
+    if (!redeemEnabled) return t("redeem.action");
+    if (!redeemStatus) return t("redeem.action");
+    return t(`redeem.status.${redeemStatus}.title`);
+  }, [redeemEnabled, redeemStatus]);
 
   return (
     <OverflowProvider>
@@ -197,10 +213,16 @@ const NftInfo: FC = () => {
                   <Button
                     type="button"
                     theme="secondary"
-                    onClick={() => setRedeemOpened(true)}
+                    onClick={() => {
+                      if (redeemStatus) {
+                        setRedeemStatusOpened(true);
+                      } else {
+                        setRedeemOpened(true);
+                      }
+                    }}
                     className="!py-2 mt-3 mr-auto"
                   >
-                    Redeem
+                    {redeemLabel}
                   </Button>
                 )}
               </div>
@@ -217,6 +239,15 @@ const NftInfo: FC = () => {
                 tokenId,
                 title: name ? `${name} ${preparedId}` : preparedId,
               }}
+              onSuccess={(s) => setCachedStatus(s)}
+            />
+          )}
+
+          {redeemEnabled && redeemStatus && (
+            <RedeemStatusModal
+              open={redeemStatusOpened}
+              onOpenChange={setRedeemStatusOpened}
+              status={redeemStatus}
             />
           )}
         </ScrollAreaContainer>

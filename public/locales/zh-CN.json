@@ -38,5 +38,36 @@
   "walletAlreadyExists": "相同地址的钱包已存在",
   "walletLocked": "钱包锁定",
   "walletNameAlreadyExists": "已存在同名钱包",
-  "welcomeTo": "欢迎来到{{target}}"
+  "welcomeTo": "欢迎来到{{target}}",
+
+  "common_ok": "确定",
+
+  "redeem.action": "兑换",
+  "redeem.toast.submitted": "兑换申请已提交",
+  "redeem.unavailable": "兑换仅支持 Dolphinet 与 Dolphinet Testnet。",
+
+  "redeem.form.name.label": "收货人",
+  "redeem.form.name.placeholder": "姓名",
+  "redeem.form.address.label": "收货地址",
+  "redeem.form.address.placeholder": "完整地址",
+  "redeem.form.phone.label": "联系电话",
+  "redeem.form.phone.placeholder": "手机号/电话",
+  "redeem.form.email.label": "邮箱",
+  "redeem.form.email.placeholder": "邮箱",
+  "redeem.form.note.label": "备注（可选）",
+  "redeem.form.note.placeholder": "补充说明",
+  "redeem.form.privacy": "提交即表示你同意将收货信息发送至 NodeVault Redeem 服务用于兑换履约。",
+  "redeem.form.submit": "提交",
+  "redeem.form.submitting": "提交中...",
+
+  "redeem.status.pending.title": "待处理",
+  "redeem.status.pending.desc": "用户提交兑换申请，待审核确认",
+  "redeem.status.confirmed.title": "已确认",
+  "redeem.status.confirmed.desc": "审核通过，准备发货",
+  "redeem.status.shipping.title": "配送中",
+  "redeem.status.shipping.desc": "物流运输中",
+  "redeem.status.delivered.title": "已送达",
+  "redeem.status.delivered.desc": "已送达用户",
+  "redeem.status.returning.title": "退货中",
+  "redeem.status.returning.desc": "用户申请退货，正在处理退货流程"
 }

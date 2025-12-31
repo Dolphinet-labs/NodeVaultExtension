@@ -23,6 +23,10 @@ export type RedeemSubmitResponse =
   | { ok: true; alreadyRedeemed?: boolean; status?: string }
   | { message: string };
 
+export type RedeemStatusResponse =
+  | { redeemed: boolean; status: string | null }
+  | { message: string };
+
 function getRedeemApiOrigin() {
   const origin = (process.env.REDEEM_API_ORIGIN ??
     "https://redeem.dolphinode.world") as string;
@@ -43,6 +47,34 @@ async function fetchJson<T>(
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+
+    const text = await res.text();
+    const json = text ? (JSON.parse(text) as any) : null;
+
+    if (!res.ok) {
+      const message =
+        (json && typeof json.message === "string" && json.message) ||
+        res.statusText ||
+        "Request failed";
+      throw new Error(message);
+    }
+
+    return json as T;
+  } finally {
+    clearTimeout(t);
+  }
+}
+
+async function fetchGetJson<T>(path: string, opts?: { timeoutMs?: number }) {
+  const controller = new AbortController();
+  const timeoutMs = opts?.timeoutMs ?? 20_000;
+  const t = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const res = await fetch(`${getRedeemApiOrigin()}${path}`, {
+      method: "GET",
       signal: controller.signal,
     });
 
@@ -91,4 +123,20 @@ export async function redeemSubmit(input: {
     signature,
     shipping,
   });
+}
+
+export async function redeemGetStatus(input: {
+  chainId: number;
+  contract: string;
+  tokenId: string;
+}) {
+  const { chainId, contract, tokenId } = input;
+
+  const qs = new URLSearchParams({
+    chainId: String(chainId),
+    contract,
+    tokenId,
+  });
+
+  return fetchGetJson<RedeemStatusResponse>(`/api/redeem/status?${qs.toString()}`);
 }

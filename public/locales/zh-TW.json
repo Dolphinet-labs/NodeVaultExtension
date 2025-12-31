@@ -38,5 +38,36 @@
   "walletAlreadyExists": "相同地址的錢包已存在",
   "walletLocked": "錢包鎖定",
   "walletNameAlreadyExists": "已存在同名錢包",
-  "welcomeTo": "歡迎來到{{target}}"
+  "welcomeTo": "歡迎來到{{target}}",
+
+  "common_ok": "確定",
+
+  "redeem.action": "兌換",
+  "redeem.toast.submitted": "兌換申請已提交",
+  "redeem.unavailable": "兌換僅支援 Dolphinet 與 Dolphinet Testnet。",
+
+  "redeem.form.name.label": "收貨人",
+  "redeem.form.name.placeholder": "姓名",
+  "redeem.form.address.label": "收貨地址",
+  "redeem.form.address.placeholder": "完整地址",
+  "redeem.form.phone.label": "聯絡電話",
+  "redeem.form.phone.placeholder": "手機號/電話",
+  "redeem.form.email.label": "信箱",
+  "redeem.form.email.placeholder": "信箱",
+  "redeem.form.note.label": "備註（可選）",
+  "redeem.form.note.placeholder": "補充說明",
+  "redeem.form.privacy": "提交即表示你同意將收貨資訊發送至 NodeVault Redeem 服務用於兌換履約。",
+  "redeem.form.submit": "提交",
+  "redeem.form.submitting": "提交中...",
+
+  "redeem.status.pending.title": "待處理",
+  "redeem.status.pending.desc": "使用者提交兌換申請，待審核確認",
+  "redeem.status.confirmed.title": "已確認",
+  "redeem.status.confirmed.desc": "審核通過，準備出貨",
+  "redeem.status.shipping.title": "配送中",
+  "redeem.status.shipping.desc": "物流運輸中",
+  "redeem.status.delivered.title": "已送達",
+  "redeem.status.delivered.desc": "已送達使用者",
+  "redeem.status.returning.title": "退貨中",
+  "redeem.status.returning.desc": "使用者申請退貨，正在處理退貨流程"
 }

@@ -14,3 +14,4 @@ export * from "./ramp";
 export * from "./ens";
 export * from "./rns";
 export * from "./hideToken";
+export * from "./redeem";
