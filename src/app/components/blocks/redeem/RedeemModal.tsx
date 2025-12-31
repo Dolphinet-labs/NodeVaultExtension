@@ -131,7 +131,7 @@ const RedeemModal: FC<RedeemModalProps> = ({
         );
       })();
       onSuccess?.(nextStatus);
-      updateToast(t("redeem.toast.submitted"));
+      updateToast(t("redeem_toast_submitted"));
       handleClose(false);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Redeem failed";
@@ -160,57 +160,61 @@ const RedeemModal: FC<RedeemModalProps> = ({
     <SecondaryModal
       open={open}
       onOpenChange={handleClose}
-      header={token.title ? `${t("redeem.action")}: ${token.title}` : t("redeem.action")}
+      header={
+        token.title
+          ? `${t("redeem_action")}: ${token.title}`
+          : t("redeem_action")
+      }
       small
       className="max-w-[28rem] items-stretch"
       headerClassName="!text-lg !mb-4"
     >
       {!redeemEnabled ? (
         <div className="text-sm text-brand-gray">
-          {t("redeem.unavailable")}
+          {t("redeem_unavailable")}
         </div>
       ) : (
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-3 max-h-[55vh] overflow-y-auto pr-1">
             <Input
-              label={t("redeem.form.name.label")}
+              label={t("redeem_form_name_label")}
               value={name}
               onChange={(e) => setName(e.currentTarget.value)}
-              placeholder={t("redeem.form.name.placeholder")}
+              placeholder={t("redeem_form_name_placeholder")}
               disabled={submitting}
               error={Boolean(error) && !name.trim()}
             />
             <LongTextField
-              label={t("redeem.form.address.label")}
+              label={t("redeem_form_address_label")}
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              placeholder={t("redeem.form.address.placeholder")}
+              placeholder={t("redeem_form_address_placeholder")}
               disabled={submitting}
               className="w-full"
               textareaClassName="!h-20"
               error={Boolean(error) && !address.trim()}
             />
             <Input
-              label={t("redeem.form.phone.label")}
+              label={t("redeem_form_phone_label")}
               value={phone}
               onChange={(e) => setPhone(e.currentTarget.value)}
-              placeholder={t("redeem.form.phone.placeholder")}
+              placeholder={t("redeem_form_phone_placeholder")}
               disabled={submitting}
               error={Boolean(error) && !phone.trim()}
             />
             <Input
-              label={t("redeem.form.email.label")}
+              label={t("redeem_form_email_label")}
               value={email}
               onChange={(e) => setEmail(e.currentTarget.value)}
-              placeholder={t("redeem.form.email.placeholder")}
+              placeholder={t("redeem_form_email_placeholder")}
               disabled={submitting}
               error={Boolean(error) && !email.trim()}
             />
             <LongTextField
-              label={t("redeem.form.note.label")}
+              label={t("redeem_form_note_label")}
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder={t("redeem.form.note.placeholder")}
+              placeholder={t("redeem_form_note_placeholder")}
               disabled={submitting}
               className="w-full"
               textareaClassName="!h-16"
@@ -222,7 +226,7 @@ const RedeemModal: FC<RedeemModalProps> = ({
                 "border border-brand-main/10 bg-black/10 rounded-[.625rem] p-3",
               )}
             >
-              {t("redeem.form.privacy")}
+              {t("redeem_form_privacy")}
             </div>
 
             {error && (
@@ -245,7 +249,7 @@ const RedeemModal: FC<RedeemModalProps> = ({
             disabled={!canSubmit}
             className="w-full"
           >
-            {submitting ? t("redeem.form.submitting") : t("redeem.form.submit")}
+            {submitting ? t("redeem_form_submitting") : t("redeem_form_submit")}
           </Button>
         </div>
       )}

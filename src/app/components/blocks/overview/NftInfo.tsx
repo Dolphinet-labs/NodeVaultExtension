@@ -112,9 +112,9 @@ const NftInfo: FC = () => {
   );
 
   const redeemLabel = useMemo(() => {
-    if (!redeemEnabled) return t("redeem.action");
-    if (!redeemStatus) return t("redeem.action");
-    return t(`redeem.status.${redeemStatus}.title`);
+    if (!redeemEnabled) return t("redeem_action");
+    if (!redeemStatus) return t("redeem_action");
+    return t(`redeem_status_${redeemStatus}_title`);
   }, [redeemEnabled, redeemStatus]);
 
   return (
