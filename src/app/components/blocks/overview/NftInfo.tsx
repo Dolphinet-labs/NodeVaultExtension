@@ -68,12 +68,13 @@ const NftInfo: FC = () => {
     tokenInfo = undefined;
   }
 
-  if (process.env.RELEASE_ENV === "false") {
-    // eslint-disable-next-line
-    useEffect(() => {
+  // Debug only; keep hooks order stable.
+  useEffect(() => {
+    if (process.env.RELEASE_ENV === "false") {
+      // eslint-disable-next-line no-console
       console.info(tokenInfo);
-    }, [tokenInfo]);
-  }
+    }
+  }, [tokenInfo]);
 
   useTokenActivitiesSync(
     chainId,
@@ -87,6 +88,19 @@ const NftInfo: FC = () => {
     () => parseTokenSlug(tokenSlug),
     [tokenSlug],
   );
+
+  const redeemEnabled = DOLPHINET_CHAIN_IDS.has(chainId);
+  const { status: redeemStatus, setCachedStatus } = useRedeemStatus(
+    redeemEnabled && tokenInfo
+      ? { chainId, contract: address, tokenId: tokenInfo.tokenId }
+      : undefined,
+  );
+
+  const redeemLabel = useMemo(() => {
+    if (!redeemEnabled) return t("redeem_action");
+    if (!redeemStatus) return t("redeem_action");
+    return t(`redeem_status_${redeemStatus}_title`);
+  }, [redeemEnabled, redeemStatus]);
 
   const { copy, copied } = useCopyToClipboard(address);
 
@@ -106,16 +120,6 @@ const NftInfo: FC = () => {
 
   const { name, tokenId, rawBalance, detailUrl } = tokenInfo;
   const preparedId = `#${tokenId}`;
-  const redeemEnabled = DOLPHINET_CHAIN_IDS.has(chainId);
-  const { status: redeemStatus, setCachedStatus } = useRedeemStatus(
-    redeemEnabled ? { chainId, contract: address, tokenId } : undefined,
-  );
-
-  const redeemLabel = useMemo(() => {
-    if (!redeemEnabled) return t("redeem_action");
-    if (!redeemStatus) return t("redeem_action");
-    return t(`redeem_status_${redeemStatus}_title`);
-  }, [redeemEnabled, redeemStatus]);
 
   return (
     <OverflowProvider>

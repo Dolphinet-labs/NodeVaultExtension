@@ -3,8 +3,16 @@ import { indexerApi } from "./indexerApi";
 
 export const getAllEvmNetworks = withOfflineCache(
   async () => {
-    const res = await indexerApi.get<EvmNetwork[]>("/networks/all");
-    return res.data;
+    // Best-effort: if API key is missing/invalid, don't spam console with 401s.
+    if (!process.env.WIGWAM_INDEXER_API_KEY) return [];
+    try {
+      const res = await indexerApi.get<EvmNetwork[]>("/networks/all");
+      return res.data;
+    } catch (e: any) {
+      const status = e?.response?.status;
+      if (status === 401 || status === 403) return [];
+      throw e;
+    }
   },
   {
     key: "all_networks",
