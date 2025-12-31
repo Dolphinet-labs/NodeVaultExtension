@@ -41,12 +41,16 @@ import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
 
 import TokenActivity from "./TokenActivity";
 import NftOverview from "../nft/NftOverview";
+import RedeemModal from "../redeem/RedeemModal";
+
+const DOLPHINET_CHAIN_IDS = new Set([1520, 1519]);
 
 const NftInfo: FC = () => {
   const tokenSlug = useAtomValue(tokenSlugAtom)!;
 
   const chainId = useChainId();
   const { currentAccount } = useAccounts();
+  const [redeemOpened, setRedeemOpened] = useState(false);
 
   const currentNetwork = useLazyNetwork();
   const explorerLink = useExplorerLink(currentNetwork);
@@ -95,6 +99,7 @@ const NftInfo: FC = () => {
 
   const { name, tokenId, rawBalance, detailUrl } = tokenInfo;
   const preparedId = `#${tokenId}`;
+  const redeemEnabled = DOLPHINET_CHAIN_IDS.has(chainId);
 
   return (
     <OverflowProvider>
@@ -187,10 +192,33 @@ const NftInfo: FC = () => {
                   <SendIcon className="w-6 h-auto mr-2" />
                   Send
                 </Button>
+
+                {redeemEnabled && (
+                  <Button
+                    type="button"
+                    theme="secondary"
+                    onClick={() => setRedeemOpened(true)}
+                    className="!py-2 mt-3 mr-auto"
+                  >
+                    Redeem
+                  </Button>
+                )}
               </div>
             </div>
             <TokenActivity token={tokenInfo!} />
           </div>
+
+          {redeemEnabled && (
+            <RedeemModal
+              open={redeemOpened}
+              onOpenChange={setRedeemOpened}
+              token={{
+                contract: address,
+                tokenId,
+                title: name ? `${name} ${preparedId}` : preparedId,
+              }}
+            />
+          )}
         </ScrollAreaContainer>
       )}
     </OverflowProvider>

@@ -9,6 +9,7 @@ declare namespace NodeJS {
     readonly TARGET_BROWSER: "chrome" | "firefox" | "opera" | "edge" | "safari";
     readonly VERSION: string;
     readonly BUILD_ID: string;
+    readonly REDEEM_API_ORIGIN?: string;
     // NodeVault specific
     readonly WIGWAM_WEBSITE_ORIGIN?: string;
     readonly WIGWAM_STATIC_CDN?: string;

@@ -60,6 +60,7 @@ const WIGWAM_ENV_PATTERN = /^WIGWAM_/i;
 const {
   RELEASE_ENV = "false",
   TARGET_BROWSER = "chrome",
+  REDEEM_API_ORIGIN = "https://redeem.dolphinode.world",
   SOURCE_MAP: SOURCE_MAP_ENV,
   IMAGE_INLINE_SIZE_LIMIT: IMAGE_INLINE_SIZE_LIMIT_ENV = "10000",
   WEBPACK_ANALYZE = "false",
@@ -362,6 +363,7 @@ module.exports = {
       "process.env.TARGET_BROWSER": JSON.stringify(TARGET_BROWSER),
       "process.env.VERSION": JSON.stringify(VERSION),
       "process.env.BUILD_ID": JSON.stringify(BUILD_ID),
+      "process.env.REDEEM_API_ORIGIN": JSON.stringify(REDEEM_API_ORIGIN),
       ...(() => {
         const appEnvs = {};
         for (const k of Object.keys(process.env)) {

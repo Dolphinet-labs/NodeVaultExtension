@@ -1,9 +1,10 @@
-import { FC, useCallback } from "react";
+import { FC, useCallback, useMemo, useState } from "react";
 import { useSetAtom } from "jotai";
 import classNames from "clsx";
 import { useCopyToClipboard } from "lib/react-hooks/useCopyToClipboard";
 
 import { AccountNFT } from "core/types";
+import { parseTokenSlug } from "core/common/tokens";
 import { findToken } from "core/client";
 
 import { chainIdAtom } from "app/atoms";
@@ -32,6 +33,7 @@ import IconedButton from "app/components/elements/IconedButton";
 
 import PopupModal, { IPopupModalProps } from "./PopupModal";
 import NftOverview from "../nft/NftOverview";
+import RedeemModal from "../redeem/RedeemModal";
 
 type NFTOverviewPopupProps = Pick<IPopupModalProps, "open" | "onOpenChange"> & {
   token?: AccountNFT;
@@ -45,6 +47,17 @@ const NFTOverviewPopup: FC<NFTOverviewPopupProps> = ({
   const chainId = useChainId();
   const setInternalChainId = useSetAtom(chainIdAtom);
   const { currentAccount } = useAccounts();
+  const [redeemOpened, setRedeemOpened] = useState(false);
+
+  const redeemToken = useMemo(() => {
+    if (!token?.tokenSlug || !token?.tokenId) return null;
+    const { address } = parseTokenSlug(token.tokenSlug);
+    return {
+      contract: address,
+      tokenId: token.tokenId,
+      title: token.name ?? token.tokenId,
+    };
+  }, [token?.tokenSlug, token?.tokenId, token?.name]);
 
   const currentNetwork = useLazyNetwork();
   const explorerLink = useExplorerLink(currentNetwork);
@@ -187,14 +200,21 @@ const NFTOverviewPopup: FC<NFTOverviewPopupProps> = ({
         <Button
           theme="secondary"
           className="grow !py-[0.63rem] !min-w-[8rem] !rounded-lg"
-          onClick={() =>
-            token && openLink({ page: Page.Default, token: token.tokenSlug })
-          }
+          onClick={() => setRedeemOpened(true)}
+          disabled={!redeemToken}
         >
           <ExpandIcon className="w-4 h-auto mr-2" />
-          Open Full
+          Redeem
         </Button>
       </div>
+
+      {redeemToken && (
+        <RedeemModal
+          open={redeemOpened}
+          onOpenChange={setRedeemOpened}
+          token={redeemToken}
+        />
+      )}
     </PopupModal>
   );
 };
