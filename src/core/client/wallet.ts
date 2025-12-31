@@ -17,7 +17,7 @@ import {
 import { porter } from "./base";
 
 async function withRetry<T>(fn: () => Promise<T>, opts?: { retries?: number }) {
-  const retries = opts?.retries ?? 1;
+  const retries = opts?.retries ?? 2;
 
   let lastErr: unknown;
   for (let i = 0; i <= retries; i++) {
@@ -27,7 +27,8 @@ async function withRetry<T>(fn: () => Promise<T>, opts?: { retries?: number }) {
       lastErr = e;
       // small backoff: service worker may be waking up
       if (i < retries) {
-        await new Promise((r) => setTimeout(r, 300));
+        const delayMs = [300, 800, 1500][i] ?? 1500;
+        await new Promise((r) => setTimeout(r, delayMs));
       }
     }
   }
@@ -45,10 +46,10 @@ export async function getWalletState() {
           // This request is base, it's called first.
           // If no answer during this time - there is a possibility
           // that the Service Worker has stalled or is still waking up.
-          timeout: 5_000,
+          timeout: 8_000,
         },
       ),
-    { retries: 1 },
+    { retries: 2 },
   );
   assert(res?.type === type);
 
@@ -128,9 +129,10 @@ export async function changePassword(
 export async function getAccounts() {
   const type = MessageType.GetAccounts;
 
-  const res = await withRetry(() => porter.request({ type }, { timeout: 5_000 }), {
-    retries: 1,
-  });
+  const res = await withRetry(
+    () => porter.request({ type }, { timeout: 8_000 }),
+    { retries: 2 },
+  );
   assert(res?.type === type);
 
   return res.accounts;
