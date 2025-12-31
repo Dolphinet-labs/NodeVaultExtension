@@ -139,73 +139,75 @@ const RedeemModal: FC<RedeemModalProps> = ({ open, onOpenChange, token }) => {
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          <Input
-            label="Receiver name"
-            value={name}
-            onChange={(e) => setName(e.currentTarget.value)}
-            placeholder="Name"
-            disabled={submitting}
-            error={Boolean(error) && !name.trim()}
-          />
-          <LongTextField
-            label="Shipping address"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            placeholder="Full address"
-            disabled={submitting}
-            className="w-full"
-            textareaClassName="!h-20"
-            error={Boolean(error) && !address.trim()}
-          />
-          <Input
-            label="Phone"
-            value={phone}
-            onChange={(e) => setPhone(e.currentTarget.value)}
-            placeholder="Phone number"
-            disabled={submitting}
-            error={Boolean(error) && !phone.trim()}
-          />
-          <Input
-            label="Email"
-            value={email}
-            onChange={(e) => setEmail(e.currentTarget.value)}
-            placeholder="Email"
-            disabled={submitting}
-            error={Boolean(error) && !email.trim()}
-          />
-          <LongTextField
-            label="Note (optional)"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            placeholder="Anything we should know"
-            disabled={submitting}
-            className="w-full"
-            textareaClassName="!h-16"
-          />
+          <div className="flex flex-col gap-3 max-h-[55vh] overflow-y-auto pr-1">
+            <Input
+              label="Receiver name"
+              value={name}
+              onChange={(e) => setName(e.currentTarget.value)}
+              placeholder="Name"
+              disabled={submitting}
+              error={Boolean(error) && !name.trim()}
+            />
+            <LongTextField
+              label="Shipping address"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="Full address"
+              disabled={submitting}
+              className="w-full"
+              textareaClassName="!h-20"
+              error={Boolean(error) && !address.trim()}
+            />
+            <Input
+              label="Phone"
+              value={phone}
+              onChange={(e) => setPhone(e.currentTarget.value)}
+              placeholder="Phone number"
+              disabled={submitting}
+              error={Boolean(error) && !phone.trim()}
+            />
+            <Input
+              label="Email"
+              value={email}
+              onChange={(e) => setEmail(e.currentTarget.value)}
+              placeholder="Email"
+              disabled={submitting}
+              error={Boolean(error) && !email.trim()}
+            />
+            <LongTextField
+              label="Note (optional)"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="Anything we should know"
+              disabled={submitting}
+              className="w-full"
+              textareaClassName="!h-16"
+            />
 
-          <div
-            className={classNames(
-              "text-xs text-brand-gray",
-              "border border-brand-main/10 bg-black/10 rounded-[.625rem] p-3",
+            <div
+              className={classNames(
+                "text-xs text-brand-gray",
+                "border border-brand-main/10 bg-black/10 rounded-[.625rem] p-3",
+              )}
+            >
+              By submitting, you agree to send your shipping info to NodeVault
+              Redeem service for fulfillment.
+            </div>
+
+            {error && (
+              <div className="text-xs text-brand-redtext border border-brand-redobject/30 bg-black/10 rounded-[.625rem] p-3">
+                {error}
+              </div>
             )}
-          >
-            By submitting, you agree to send your shipping info to NodeVault
-            Redeem service for fulfillment.
+
+            {success && (
+              <div className="text-xs text-brand-light border border-brand-greenobject/30 bg-black/10 rounded-[.625rem] p-3">
+                {success.alreadyRedeemed
+                  ? `Already redeemed${success.status ? ` (status: ${success.status})` : ""}.`
+                  : "Submitted successfully. We will contact you soon."}
+              </div>
+            )}
           </div>
-
-          {error && (
-            <div className="text-xs text-brand-redtext border border-brand-redobject/30 bg-black/10 rounded-[.625rem] p-3">
-              {error}
-            </div>
-          )}
-
-          {success && (
-            <div className="text-xs text-brand-light border border-brand-greenobject/30 bg-black/10 rounded-[.625rem] p-3">
-              {success.alreadyRedeemed
-                ? `Already redeemed${success.status ? ` (status: ${success.status})` : ""}.`
-                : "Submitted successfully. We will contact you soon."}
-            </div>
-          )}
 
           <Button
             onClick={handleSubmit}
