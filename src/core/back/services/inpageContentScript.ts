@@ -1,19 +1,32 @@
-import browser from "webextension-polyfill";
-
 /*
  * This content script is injected programmatically because
  * MAIN world injection does not work properly via manifest
  * https://bugs.chromium.org/p/chromium/issues/detail?id=634381
  */
 export async function startInpageContentScript() {
+  // Use Chrome MV3 API directly so runtime permission usage is clear and reliable.
+  // `webextension-polyfill` does not consistently expose `scripting` in Chrome.
+  if (!chrome?.scripting?.registerContentScripts) {
+    console.warn(
+      "chrome.scripting.registerContentScripts is not available; skipping inpage registration.",
+    );
+    return;
+  }
+
   try {
-    await browser.scripting.registerContentScripts([
+    const existing = await chrome.scripting
+      .getRegisteredContentScripts({ ids: ["inpage"] })
+      .catch(() => []);
+    if (existing.some((s) => s.id === "inpage")) return;
+
+    await chrome.scripting.registerContentScripts([
       {
         id: "inpage",
         matches: ["http://*/*", "https://*/*"],
         js: ["scripts/inpage.js"],
         runAt: "document_start",
         allFrames: true,
+        // Type support for `world` may vary across type packages.
         ["world" as any]: "MAIN",
       },
     ]);

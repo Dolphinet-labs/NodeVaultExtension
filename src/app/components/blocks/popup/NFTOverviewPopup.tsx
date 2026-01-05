@@ -75,8 +75,8 @@ const NFTOverviewPopup: FC<NFTOverviewPopupProps> = ({
 
   const redeemLabel = useMemo(() => {
     if (!redeemEnabled) return "Open Full";
-    if (!redeemStatus) return t("redeem_action");
-    return t(`redeem_status_${redeemStatus}_title`);
+    if (!redeemStatus) return t("redeem.action");
+    return t(`redeem.status.${redeemStatus}.title`);
   }, [redeemEnabled, redeemStatus]);
 
   const currentNetwork = useLazyNetwork();

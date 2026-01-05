@@ -471,6 +471,9 @@ module.exports = {
               const json = JSON.parse(content);
               const extJson = Object.fromEntries(
                 Object.entries(json).map(([name, val]) => {
+                  // Chrome locale message keys must match: [A-Za-z0-9_]+
+                  // Keep developer-friendly keys in `public/locales/*.json`, but sanitize them for Chrome.
+                  const safeName = name.replace(/[^A-Za-z0-9_]/g, "_");
                   const keySet = new Set();
                   const message = val.replace(/{{(.*?)}}/g, (_, key) => {
                     keySet.add(key);
@@ -487,7 +490,7 @@ module.exports = {
                     );
                   }
 
-                  return [name, extVal];
+                  return [safeName, extVal];
                 }),
               );
               return JSON.stringify(extJson, null, 2);

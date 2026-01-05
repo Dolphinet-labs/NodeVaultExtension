@@ -110,12 +110,6 @@ export const NETWORK_ICON_MAP = new Map<number, string>(
 );
 
 export function getNetworkIconUrl(network: Network) {
-  // Prefer remote icon URL for Dolphinet to avoid missing local icon assets
-  // in custom forks where public/icons/network may not be populated yet.
-  if (network.chainTag === "dolphinet" && network.iconUrls?.[0]) {
-    return network.iconUrls[0];
-  }
-
   return NETWORK_ICON_MAP.get(network.chainId) ?? network.iconUrls?.[0];
 }
 

@@ -18,6 +18,14 @@ export function wrapStaticUrl(originUrl: string) {
 }
 
 export function getERC20IconUrl(chainId: number, tokenAddress: string) {
+  // Dolphinet mainnet ERC20 icons are hosted in the NodeVault repo under:
+  // iconassets/{tokenAddress}/logo.png
+  // Use GitHub Raw so we can fetch the PNG directly.
+  if (chainId === 1520) {
+    const addr = tokenAddress.toLowerCase();
+    return `https://raw.githubusercontent.com/Dolphinet-labs/NodeVault/main/iconassets/${addr}/logo.png`;
+  }
+
   if (!staticBaseUrl) return null;
 
   return joinPath(staticBaseUrl, `token-icons/${chainId}/${tokenAddress}.png`);

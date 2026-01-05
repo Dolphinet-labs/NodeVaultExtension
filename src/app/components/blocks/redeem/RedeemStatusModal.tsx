@@ -18,11 +18,11 @@ const RedeemStatusModal: FC<Props> = ({ open, onOpenChange, status }) => {
   useI18NUpdate();
 
   const title = useMemo(() => {
-    return t(`redeem_status_${status}_title`);
+    return t(`redeem.status.${status}.title`);
   }, [status]);
 
   const desc = useMemo(() => {
-    return t(`redeem_status_${status}_desc`);
+    return t(`redeem.status.${status}.desc`);
   }, [status]);
 
   return (
