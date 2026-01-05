@@ -6,6 +6,9 @@
 # dest
 /dist
 
+# Cloudflare Workers (deployment project + local wrangler state)
+/cloudflare
+
 # dependencies
 node_modules
 .pnp

@@ -375,10 +375,8 @@ module.exports = {
       })(),
       // Force NodeVault website origin (override any build environment leftovers).
       "process.env.WIGWAM_WEBSITE_ORIGIN": JSON.stringify(NODEVAULT_WEBSITE_ORIGIN),
-      // NodeVault release: disable legacy Wigwam Indexer integration by default
-      // to avoid shipping Wigwam endpoints in the bundle.
-      "process.env.WIGWAM_INDEXER_API": JSON.stringify(""),
-      "process.env.WIGWAM_INDEXER_API_KEY": JSON.stringify(""),
+      // NOTE: Do not override WIGWAM_INDEXER_API / WIGWAM_INDEXER_API_KEY here.
+      // They are injected from the real environment via the WIGWAM_* loop above.
     }),
 
     new webpack.ProvidePlugin({
