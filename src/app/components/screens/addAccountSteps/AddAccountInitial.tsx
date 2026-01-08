@@ -13,6 +13,7 @@ import { ReactComponent as ImportIcon } from "app/icons/addaccount-import.svg";
 import { ReactComponent as LedgerIcon } from "app/icons/addaccount-ledger.svg";
 import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
 import { ReactComponent as SuccessGreen } from "app/icons/success-green.svg";
+import NodeVaultLogoImage from "app/images/nodevault.png";
 
 import ConfirmAccounts from "./ConfirmAccounts";
 import LedgerScanModal from "./shared/LedgerScanModal";
@@ -86,6 +87,13 @@ const ChooseAddAccountWay = memo<{ onLedgerOpened?: () => void }>(
 
     return (
       <>
+        {isInitialWallet ? (
+          <img
+            src={NodeVaultLogoImage}
+            alt="NodeVault"
+            className="w-16 h-auto mx-auto mb-5"
+          />
+        ) : null}
         <AddAccountHeader
           className="mb-12"
           description={

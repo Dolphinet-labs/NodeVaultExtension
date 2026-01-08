@@ -26,7 +26,6 @@ import Button from "app/components/elements/Button";
 import BackButton from "app/components/elements/BackButton";
 import ScrollAreaContainer from "app/components/elements/ScrollAreaContainer";
 import AddAccountSteps from "app/components/blocks/AddAccountSteps";
-import NodeVaultLogoImage from "app/images/nodevault.png";
 
 const AddAccountModal = memo(() => {
   const [accModalOpened, setAccModalOpened] = useAtom(addAccountModalAtom);
@@ -139,18 +138,6 @@ const AddAccountModal = memo(() => {
           )}
         >
           <OnMount handle={handleContentMount} />
-
-          <img
-            src={NodeVaultLogoImage}
-            alt="NodeVault"
-            className={classNames(
-              "w-16 h-auto",
-              "absolute",
-              "top-0 left-1/2",
-              "-translate-x-1/2 -translate-y-1/4",
-              "z-30",
-            )}
-          />
 
           <OverflowProvider>
             {(ref) => (
