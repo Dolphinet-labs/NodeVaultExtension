@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@wigwam/lifi-widget",
-  "version": "2.9.4",
+  "version": "3.0.0",
   "dependencies": {
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
