@@ -5,7 +5,8 @@ export type InpageMessage<T = any> = {
   data: T;
 };
 
-const BUILD_ID = process.env.BUILD_ID;
+const BUILD_ID =
+  (typeof process !== "undefined" && process.env.BUILD_ID) || "unknown";
 
 export class InpageProtocol {
   constructor(

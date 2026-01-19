@@ -14,9 +14,11 @@ import { getDexPrices, getCoinGeckoNativeTokenPrice } from "./dexPrices";
 
 const ONE_DAY = 24 * 60 * 60_000;
 const NATIVE_TOKEN_ADDRESS = "0x0000000000000000000000000000000000000000";
+const WIGWAM_ON_RAMP_API_URL =
+  typeof process !== "undefined" ? process.env.WIGWAM_ON_RAMP_API_URL : "";
 
 const onRampApi = axios.create({
-  baseURL: process.env.WIGWAM_ON_RAMP_API_URL!,
+  baseURL: WIGWAM_ON_RAMP_API_URL,
   timeout: 90_000,
 });
 

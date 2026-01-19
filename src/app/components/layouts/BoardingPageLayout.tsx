@@ -88,8 +88,7 @@ const BoardingPageLayout: FC<PropsWithChildren<BoardingPageLayoutProps>> = ({
         <span>NodeVault</span>
       </div>
     ) : (
-      <>
-      </>
+      <></>
     )}
   </div>
 );

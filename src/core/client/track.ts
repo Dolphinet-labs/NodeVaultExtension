@@ -44,7 +44,10 @@ export const trackEvent = async (
 export const isTrackingEnabled = () => getAmplitude().then(Boolean);
 
 const getAmplitude = memoizeOne(async () => {
-  const apiKey = process.env.WIGWAM_ANALYTICS_API_KEY;
+  const apiKey =
+    typeof process !== "undefined"
+      ? process.env.WIGWAM_ANALYTICS_API_KEY
+      : undefined;
   const state = await storage.fetchForce<AnalyticsState>(Setting.Analytics);
 
   if (!apiKey || !state?.enabled) return null;

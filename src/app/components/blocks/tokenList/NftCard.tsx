@@ -10,6 +10,7 @@ import NftAvatar, {
 } from "app/components/elements/NftAvatar";
 import PrettyAmount from "app/components/elements/PrettyAmount";
 import { ReactComponent as CheckIcon } from "app/icons/terms-check.svg";
+import { t } from "lib/ext/i18n";
 
 const INITIAL_NFT_LOADING_STATUS = {
   state: "idle" as const,
@@ -21,11 +22,25 @@ type NftCardProps = {
   isActive?: boolean;
   onSelect: (asset: AccountNFT) => void;
   isManageMode: boolean;
+  isMultiSelect?: boolean;
+  isSelected?: boolean;
+  isRedeemDisabled?: boolean;
 };
 
 const NftCard = memo(
   forwardRef<HTMLButtonElement, NftCardProps>(
-    ({ nft, isActive = false, onSelect, isManageMode }, ref) => {
+    (
+      {
+        nft,
+        isActive = false,
+        onSelect,
+        isManageMode,
+        isMultiSelect = false,
+        isSelected = false,
+        isRedeemDisabled = false,
+      },
+      ref,
+    ) => {
       const [{ state: loadingState, delayFinished }, setLoadingStatus] =
         useState<AvatarLoadingStatus>(INITIAL_NFT_LOADING_STATUS);
 
@@ -34,6 +49,10 @@ const NftCard = memo(
 
       const { thumbnailUrl, name, tokenId, rawBalance, status } = nft;
       const disabled = status === TokenStatus.Disabled;
+      const showMultiSelect = isMultiSelect && !isManageMode;
+      const isBatchRedeemDisabled = showMultiSelect && isRedeemDisabled;
+      const isCardDisabled =
+        disabled || rawBalance === "0" || isBatchRedeemDisabled;
 
       const title = useMemo(() => prepareName(tokenId, name), [name, tokenId]);
 
@@ -41,6 +60,7 @@ const NftCard = memo(
         <button
           ref={ref}
           type="button"
+          disabled={isCardDisabled}
           onClick={() => onSelect(nft)}
           className={classNames(
             "flex flex-col",
@@ -52,7 +72,10 @@ const NftCard = memo(
             (isManageMode || !isActive) &&
               "hover:bg-brand-main/10 hover:!opacity-100",
             isActive && "bg-brand-main/20",
-            (disabled || rawBalance === "0") && "opacity-60",
+            showMultiSelect &&
+              isSelected &&
+              "bg-brand-main/20 ring-1 ring-brand-main/40",
+            isCardDisabled && "opacity-60 cursor-not-allowed",
             invisible && "invisible",
           )}
         >
@@ -104,6 +127,35 @@ const NftCard = memo(
                   </Checkbox.Indicator>
                 </span>
               </Checkbox.Root>
+            )}
+            {showMultiSelect && (
+              <div
+                className={classNames(
+                  "absolute top-1 right-1",
+                  "w-5 h-5 min-w-[1.25rem]",
+                  "rounded",
+                  "flex items-center justify-center",
+                  isSelected
+                    ? "bg-brand-main text-black"
+                    : "bg-[#35494D] border border-brand-main/60",
+                  isBatchRedeemDisabled && "opacity-60",
+                )}
+              >
+                {isSelected && <CheckIcon className="w-3 h-3" />}
+              </div>
+            )}
+            {isBatchRedeemDisabled && (
+              <div
+                className={classNames(
+                  "absolute bottom-1 right-1",
+                  "px-2 py-[2px]",
+                  "rounded",
+                  "text-[10px] font-bold",
+                  "bg-brand-main/80 text-black",
+                )}
+              >
+                {t("redeem.batch.redeemed")}
+              </div>
             )}
           </div>
           {title.component}

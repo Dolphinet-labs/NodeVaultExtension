@@ -18,6 +18,13 @@ import * as client from "core/client";
 
 import { reset, getAllStorage } from "./utils";
 
+const RELEASE_ENV =
+  typeof process !== "undefined" ? process.env.RELEASE_ENV : undefined;
+const WIGWAM_DEV_CONTROL_PANEL =
+  typeof process !== "undefined"
+    ? process.env.WIGWAM_DEV_CONTROL_PANEL
+    : undefined;
+
 Object.assign(window, {
   ...cryptoUtils,
   browser,
@@ -38,10 +45,10 @@ Object.assign(window, {
   downloadFile,
 });
 
-if (process.env.RELEASE_ENV === "false") {
+if (RELEASE_ENV === "false") {
   const imports = [
     import("./importExport"),
-    process.env.WIGWAM_DEV_CONTROL_PANEL === "true" && import("./controlPanel"),
+    WIGWAM_DEV_CONTROL_PANEL === "true" && import("./controlPanel"),
   ].filter(Boolean);
 
   Promise.all(imports)

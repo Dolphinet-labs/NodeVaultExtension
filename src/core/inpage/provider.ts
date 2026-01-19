@@ -28,6 +28,10 @@ import ICON_SVG_BASE64 from "./iconSvgBase64";
 
 const gatewayEventType = Symbol();
 const stateUpdatedType = Symbol();
+const BUILD_ID =
+  typeof process !== "undefined" ? process.env.BUILD_ID : undefined;
+const VERSION =
+  typeof process !== "undefined" ? process.env.VERSION : undefined;
 
 type GatewayPayload<T = any> = JsonRpcResponse<T> | JsonRpcNotification<T>;
 
@@ -56,7 +60,7 @@ export class InpageProvider extends Emitter {
   // https://eips.ethereum.org/EIPS/eip-5749
   info: EIP6963ProviderInfo = Object.freeze({
     name: "NodeVault",
-    uuid: `nodevault-${process.env.BUILD_ID}`,
+    uuid: `nodevault-${BUILD_ID ?? "unknown"}`,
     rdns: "com.nodevault.wallet",
     icon: ICON_SVG_BASE64,
     description: "NodeVault — Web 3.0 Wallet",
@@ -166,7 +170,7 @@ export class InpageProvider extends Emitter {
   }: RequestArguments): Promise<unknown> {
     switch (method) {
       case JsonRpcMethod.web3_clientVersion:
-        return `NodeVault/v${process.env.VERSION}`;
+        return `NodeVault/v${VERSION ?? "unknown"}`;
 
       case JsonRpcMethod.eth_chainId:
         return this.chainId!;

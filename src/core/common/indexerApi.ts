@@ -1,7 +1,11 @@
 import axios from "axios";
 
-const INDEXER_BASE_URL = process.env.WIGWAM_INDEXER_API || "";
-const INDEXER_API_KEY = process.env.WIGWAM_INDEXER_API_KEY || "";
+const WIGWAM_INDEXER_API =
+  typeof process !== "undefined" ? process.env.WIGWAM_INDEXER_API : "";
+const WIGWAM_INDEXER_API_KEY =
+  typeof process !== "undefined" ? process.env.WIGWAM_INDEXER_API_KEY : "";
+const INDEXER_BASE_URL = WIGWAM_INDEXER_API || "";
+const INDEXER_API_KEY = WIGWAM_INDEXER_API_KEY || "";
 
 export const indexerApi = axios.create({
   // Note: when disabled, keep baseURL empty and block requests via interceptor.

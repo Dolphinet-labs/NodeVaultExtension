@@ -295,8 +295,8 @@ const InteractionWithDapp: FC<{ className?: string }> = ({ className }) => {
                 content={
                   <p>
                     When enabled - use the MetaMask connection button to connect
-                    to dApps only if the NodeVault wallet option is unavailable on
-                    the website.
+                    to dApps only if the NodeVault wallet option is unavailable
+                    on the website.
                     <br />
                     Otherwise, choose only NodeVault wallet!
                   </p>

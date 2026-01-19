@@ -28,8 +28,9 @@ export type RedeemStatusResponse =
   | { message: string };
 
 function getRedeemApiOrigin() {
-  const origin = (process.env.REDEEM_API_ORIGIN ??
-    "https://redeem.dolphinode.world") as string;
+  const origin =
+    (typeof process !== "undefined" && process.env.REDEEM_API_ORIGIN) ||
+    "https://redeem.dolphinode.world";
   return origin.replace(/\/+$/, "");
 }
 
@@ -138,5 +139,7 @@ export async function redeemGetStatus(input: {
     tokenId,
   });
 
-  return fetchGetJson<RedeemStatusResponse>(`/api/redeem/status?${qs.toString()}`);
+  return fetchGetJson<RedeemStatusResponse>(
+    `/api/redeem/status?${qs.toString()}`,
+  );
 }

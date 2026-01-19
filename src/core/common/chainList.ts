@@ -1,10 +1,13 @@
 import { withOfflineCache } from "lib/ext/offlineCache";
 import { indexerApi } from "./indexerApi";
 
+const WIGWAM_INDEXER_API_KEY =
+  typeof process !== "undefined" ? process.env.WIGWAM_INDEXER_API_KEY : "";
+
 export const getAllEvmNetworks = withOfflineCache(
   async () => {
     // Best-effort: if API key is missing/invalid, don't spam console with 401s.
-    if (!process.env.WIGWAM_INDEXER_API_KEY) return [];
+    if (!WIGWAM_INDEXER_API_KEY) return [];
     try {
       const res = await indexerApi.get<EvmNetwork[]>("/networks/all");
       return res.data;

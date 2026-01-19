@@ -39,28 +39,31 @@ export function useRedeemStatus(input?: {
 }) {
   const [status, setStatus] = useState<RedeemStatus | null>(null);
   const [loading, setLoading] = useState(false);
+  const chainId = input?.chainId;
+  const contract = input?.contract;
+  const tokenId = input?.tokenId;
 
   const key = useMemo(() => {
-    if (!input?.chainId || !input?.contract || !input?.tokenId) return null;
-    return cacheKey(input.chainId, input.contract, input.tokenId);
-  }, [input?.chainId, input?.contract, input?.tokenId]);
+    if (!chainId || !contract || !tokenId) return null;
+    return cacheKey(chainId, contract, tokenId);
+  }, [chainId, contract, tokenId]);
 
   const setCachedStatus = useCallback(
     async (next: RedeemStatus) => {
-      if (!input) return;
-      const k = cacheKey(input.chainId, input.contract, input.tokenId);
+      if (!chainId || !contract || !tokenId) return;
+      const k = cacheKey(chainId, contract, tokenId);
       const val: CacheValue = { status: next, updatedAt: Date.now() };
       await storage.put(k, val);
       setStatus(next);
     },
-    [input],
+    [chainId, contract, tokenId],
   );
 
   const refresh = useCallback(async () => {
-    if (!input || !key) return;
+    if (!chainId || !contract || !tokenId || !key) return;
     setLoading(true);
     try {
-      const res = await redeemGetStatus(input);
+      const res = await redeemGetStatus({ chainId, contract, tokenId });
       if ("message" in res) return;
       if (res.redeemed && res.status) {
         if (isRedeemStatus(res.status)) {
@@ -70,17 +73,20 @@ export function useRedeemStatus(input?: {
           } satisfies CacheValue);
           setStatus(res.status);
         }
+      } else {
+        setStatus(null);
       }
     } finally {
       setLoading(false);
     }
-  }, [input, key]);
+  }, [chainId, contract, tokenId, key]);
 
   useEffect(() => {
     let mounted = true;
     if (!key) return;
 
     (async () => {
+      setStatus(null);
       const cached = await storage.fetchForce<CacheValue>(key);
       if (mounted && cached?.status) setStatus(cached.status);
       await refresh();
@@ -95,5 +101,3 @@ export function useRedeemStatus(input?: {
 
   return { status, loading, refresh, setCachedStatus };
 }
-
-

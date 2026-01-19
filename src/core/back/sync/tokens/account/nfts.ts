@@ -63,7 +63,12 @@ export const syncAccountNFTs = memoize(
         // Skip to just fetch balance if disabled
         if (existing?.status === TokenStatus.Disabled) continue;
         // Skip no name tokens (keep Dolphinet entries even without media; metadata can be hydrated via tokenURI)
-        if (!isDolphinet && !existing && !nftData.image_uri && !nftData.content_uri) {
+        if (
+          !isDolphinet &&
+          !existing &&
+          !nftData.image_uri &&
+          !nftData.content_uri
+        ) {
           continue;
         }
 
@@ -244,14 +249,18 @@ async function fetchDolphinetNfts(chainId: number, accountAddress: string) {
     const contract = token?.address_hash;
     if (!contract) continue;
 
-    const instances = await fetchTokenInstances(explorerApiUrl, contract).catch(() => []);
+    const instances = await fetchTokenInstances(explorerApiUrl, contract).catch(
+      () => [],
+    );
     if (!instances.length) continue;
 
     for (const inst of instances) {
       const ownerHash = (inst as any)?.owner?.hash as string | undefined;
       if (!ownerHash || ownerHash.toLowerCase() !== addrLower) continue;
 
-      const tokenId = String((inst as any)?.id ?? (inst as any)?.token_id ?? "");
+      const tokenId = String(
+        (inst as any)?.id ?? (inst as any)?.token_id ?? "",
+      );
       if (!tokenId) continue;
 
       const coll = grouped.get(contract) ?? {

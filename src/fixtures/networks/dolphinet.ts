@@ -1,6 +1,7 @@
 import { Network } from "core/types";
 
-const DOLPHINET_ICON = "https://explorer.dolphinode.world/assets/configs/network_icon.png";
+const DOLPHINET_ICON =
+  "https://explorer.dolphinode.world/assets/configs/network_icon.png";
 const DOLPHINET_TESTNET_ICON =
   "https://explorer-testnet.dolphinode.world/assets/configs/network_icon.png";
 
@@ -9,7 +10,10 @@ export const DOLPHINET: Network[] = [
   {
     chainId: 1520,
     type: "mainnet",
-    rpcUrls: ["https://rpc.dolphinode.world", "https://rpc-dev01.dolphinode.world"],
+    rpcUrls: [
+      "https://rpc.dolphinode.world",
+      "https://rpc-dev01.dolphinode.world",
+    ],
     chainTag: "dolphinet",
     name: "Dolphinet",
     nativeCurrency: {
@@ -42,5 +46,3 @@ export const DOLPHINET: Network[] = [
     infoUrl: "https://explorer-testnet.dolphinode.world",
   },
 ];
-
-

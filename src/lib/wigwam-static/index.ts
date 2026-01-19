@@ -2,7 +2,8 @@ import { IPFS_IO_GATEWAY } from "lib/nft-metadata/defaults";
 import { getIPFSUrl } from "lib/nft-metadata/uri";
 import { joinPath } from "lib/system/url";
 
-const staticBaseUrl = process.env.WIGWAM_STATIC_CDN;
+const staticBaseUrl =
+  typeof process !== "undefined" ? process.env.WIGWAM_STATIC_CDN : undefined;
 
 export function wrapStaticUrl(originUrl: string) {
   if (!staticBaseUrl) return originUrl;

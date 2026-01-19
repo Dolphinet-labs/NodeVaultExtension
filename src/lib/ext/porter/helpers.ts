@@ -12,8 +12,11 @@ export interface SerializedError {
   data?: any;
 }
 
+const TARGET_BROWSER =
+  typeof process !== "undefined" ? process.env.TARGET_BROWSER : undefined;
+
 export function sanitizeMessage(msg: any) {
-  if (process.env.TARGET_BROWSER !== "firefox") return msg;
+  if (TARGET_BROWSER !== "firefox") return msg;
 
   // Fix firefox bug: The object could not be cloned
   try {

@@ -1,3 +1,5 @@
+import "lib/env/shim";
+
 import { porter } from "core/client";
 import { PorterChannel } from "core/types";
 

@@ -81,9 +81,9 @@ const AttentionContent = [
     content: (
       <>
         <p className="mb-2">
-          It is not possible to recover the current profile password. NodeVault is{" "}
-          <strong>non-custodial</strong> software. The user is the only one who
-          knows the password.
+          It is not possible to recover the current profile password. NodeVault
+          is <strong>non-custodial</strong> software. The user is the only one
+          who knows the password.
         </p>
 
         <p className="mt-2">

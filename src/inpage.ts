@@ -1,3 +1,5 @@
+import "lib/env/shim";
+
 import { InpageProtocol } from "core/inpage/protocol";
 import { InpageProvider } from "core/inpage/provider";
 import { UniversalInpageProvider } from "core/inpage/universalProvider";

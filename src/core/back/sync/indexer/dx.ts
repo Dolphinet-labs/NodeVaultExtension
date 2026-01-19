@@ -2,6 +2,9 @@ import memoize from "mem";
 
 import { indexerApi } from "core/common/indexerApi";
 
+const WIGWAM_INDEXER_API =
+  typeof process !== "undefined" ? process.env.WIGWAM_INDEXER_API : undefined;
+
 export const getDxChain = memoize(async (chainId: number) => {
   try {
     const chainList = await fetchDxChainList();
@@ -15,9 +18,11 @@ export const getDxChain = memoize(async (chainId: number) => {
 
 export const fetchDxChainList = memoize(
   async () => {
-    if (!process.env.WIGWAM_INDEXER_API) return [];
+    if (!WIGWAM_INDEXER_API) return [];
     try {
-      return await indexerApi.get<DxChain[]>("/d/v1/chain/list").then((r) => r.data);
+      return await indexerApi
+        .get<DxChain[]>("/d/v1/chain/list")
+        .then((r) => r.data);
     } catch {
       return [];
     }

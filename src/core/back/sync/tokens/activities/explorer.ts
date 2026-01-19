@@ -45,7 +45,10 @@ export async function syncExplorerTokenActivities(token: AccountToken) {
     };
 
     if (nativeToken) {
-      const txs = await fetchAddressTransactions(explorerApiUrl, accountAddress);
+      const txs = await fetchAddressTransactions(
+        explorerApiUrl,
+        accountAddress,
+      );
       for (const tx of txs) {
         const timeAt = Date.parse(tx.timestamp);
         if (!Number.isFinite(timeAt)) continue;
@@ -58,8 +61,7 @@ export async function syncExplorerTokenActivities(token: AccountToken) {
         const to = typeof tx.to === "string" ? tx.to : tx.to.hash;
         if (!from || !to) continue;
 
-        const income =
-          accountAddress.toLowerCase() === to.toLowerCase();
+        const income = accountAddress.toLowerCase() === to.toLowerCase();
 
         addToActivities({
           ...base,
@@ -103,12 +105,10 @@ export async function syncExplorerTokenActivities(token: AccountToken) {
         if (transferTokenId && transferTokenId !== tokenId) continue;
       }
 
-      const income =
-        accountAddress.toLowerCase() === to.toLowerCase();
+      const income = accountAddress.toLowerCase() === to.toLowerCase();
 
       const total: any = t.total as any;
-      const value: string =
-        total?.value ?? "1";
+      const value: string = total?.value ?? "1";
 
       if (value === "0") continue;
 

@@ -1,10 +1,13 @@
+import "lib/env/shim";
+
 import { nanoid } from "nanoid";
 
 declare const browser: any;
 
 const ext = chrome ?? browser;
 const extId = ext.runtime.id;
-const version = process.env.VERSION;
+const version =
+  typeof process !== "undefined" ? process.env.VERSION : undefined;
 const salt = nanoid();
 
 window.addEventListener(

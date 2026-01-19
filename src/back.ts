@@ -1,3 +1,4 @@
+import "lib/env/shim";
 import "lib/shims/axiosFetchAdapter";
 import "lib/shims/bignumberLimit";
 

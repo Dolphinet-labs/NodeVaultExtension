@@ -101,7 +101,8 @@ export class PorterClient<ReqData = any, ResData = unknown> {
         lastErr = e;
 
         const retriable =
-          e instanceof PorterTimeoutError || e instanceof PorterDisconnectedError;
+          e instanceof PorterTimeoutError ||
+          e instanceof PorterDisconnectedError;
 
         if (!retriable || attempt >= maxRetries) {
           throw e;

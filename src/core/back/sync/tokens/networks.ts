@@ -217,7 +217,9 @@ export const fetchAllUsedNetworks = withOfflineCache(
         534352, // scroll
       ].map(async (chainId) => ({
         chainId,
-        tokens: await fetchAccountTokens(chainId, accountAddress).catch(() => []),
+        tokens: await fetchAccountTokens(chainId, accountAddress).catch(
+          () => [],
+        ),
       })),
     );
 

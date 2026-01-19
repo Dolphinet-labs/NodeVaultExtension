@@ -17,6 +17,9 @@ import {
   NODEVAULT_WEBSITE_URL,
 } from "app/constants/links";
 
+const VERSION =
+  typeof process !== "undefined" ? process.env.VERSION : undefined;
+
 const About: FC = () => {
   return (
     <div className="flex flex-col items-start pt-3">
@@ -30,13 +33,13 @@ const About: FC = () => {
       </div>
 
       <p className="text-brand-font text-sm mt-6 mb-8 max-w-[20rem]">
-        NodeVault lets you explore DeFi and NFTs in a safer, faster and more modern
-        way.
+        NodeVault lets you explore DeFi and NFTs in a safer, faster and more
+        modern way.
       </p>
 
       <AboutHeader>Version</AboutHeader>
       <div className="mb-8 font-mono text-brand-inactivelight font-bold text-xl">
-        {process.env.VERSION}
+        {VERSION}
       </div>
 
       <AboutHeader>Useful links</AboutHeader>

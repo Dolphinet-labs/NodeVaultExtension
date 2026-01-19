@@ -1,7 +1,10 @@
 import axios, { AxiosInstance } from "axios";
 import { createQueue } from "lib/system/queue";
 
-type NextPageParams = Record<string, string | number | boolean | null | undefined>;
+type NextPageParams = Record<
+  string,
+  string | number | boolean | null | undefined
+>;
 
 export type BlockscoutV2Page<TItem> = {
   items: TItem[];
@@ -42,7 +45,10 @@ export type BlockscoutV2TokenTransfer = {
   from: { hash: string } | string;
   to: { hash: string } | string;
   token: BlockscoutV2TokenInfo;
-  total: BlockscoutV2TotalERC20 | BlockscoutV2TotalERC721 | BlockscoutV2TotalERC1155;
+  total:
+    | BlockscoutV2TotalERC20
+    | BlockscoutV2TotalERC721
+    | BlockscoutV2TotalERC1155;
   transaction_hash: string;
 };
 
@@ -106,7 +112,9 @@ async function withRateLimit<T>(baseURL: string, fn: () => Promise<T>) {
   return q(async () => {
     const limitTime = apiLimitTime.get(baseURL);
     if (limitTime) {
-      await new Promise((r) => setTimeout(r, Math.max(0, limitTime - Date.now())));
+      await new Promise((r) =>
+        setTimeout(r, Math.max(0, limitTime - Date.now())),
+      );
     }
 
     return fn().finally(() => {
@@ -154,7 +162,10 @@ async function paginate<TItem>(opts: {
   return items;
 }
 
-export async function fetchAddressTokenBalances(baseURL: string, address: string) {
+export async function fetchAddressTokenBalances(
+  baseURL: string,
+  address: string,
+) {
   const api = getApi(baseURL);
   const res = await withRateLimit(baseURL, () =>
     api.get<BlockscoutV2TokenBalance[]>(`/addresses/${address}/token-balances`),
@@ -162,7 +173,10 @@ export async function fetchAddressTokenBalances(baseURL: string, address: string
   return res.data ?? [];
 }
 
-export async function fetchAddressNftCollections(baseURL: string, address: string) {
+export async function fetchAddressNftCollections(
+  baseURL: string,
+  address: string,
+) {
   return paginate<BlockscoutV2NftCollection>({
     baseURL,
     path: `/addresses/${address}/nft/collections`,
@@ -180,18 +194,28 @@ export type BlockscoutV2AddressToken = {
 
 // Dolphinet explorers reliably support this endpoint; it's also used by alpha-wallet-android:
 // /api/v2/addresses/:address/tokens?type=ERC-721
-export async function fetchAddressTokens(baseURL: string, address: string, type: string) {
+export async function fetchAddressTokens(
+  baseURL: string,
+  address: string,
+  type: string,
+) {
   const api = getApi(baseURL);
   const res = await withRateLimit(baseURL, () =>
-    api.get<{ items?: BlockscoutV2AddressToken[] }>(`/addresses/${address}/tokens`, {
-      params: { type },
-    }),
+    api.get<{ items?: BlockscoutV2AddressToken[] }>(
+      `/addresses/${address}/tokens`,
+      {
+        params: { type },
+      },
+    ),
   );
   return res.data?.items ?? [];
 }
 
 // Dolphinet explorers expose token instances which include `owner.hash`, so we can filter by address.
-export async function fetchTokenInstances(baseURL: string, tokenAddress: string) {
+export async function fetchTokenInstances(
+  baseURL: string,
+  tokenAddress: string,
+) {
   const api = getApi(baseURL);
   const res = await withRateLimit(baseURL, () =>
     api.get<any>(`/tokens/${tokenAddress}/instances`),
@@ -199,7 +223,8 @@ export async function fetchTokenInstances(baseURL: string, tokenAddress: string)
 
   const data = res.data;
   if (Array.isArray(data)) return data as BlockscoutV2NftInstance[];
-  if (data && Array.isArray(data.items)) return data.items as BlockscoutV2NftInstance[];
+  if (data && Array.isArray(data.items))
+    return data.items as BlockscoutV2NftInstance[];
 
   return [];
 }
@@ -223,7 +248,10 @@ export async function fetchAddressTokenTransfers(opts: {
   });
 }
 
-export async function fetchAddressTransactions(baseURL: string, address: string) {
+export async function fetchAddressTransactions(
+  baseURL: string,
+  address: string,
+) {
   return paginate<BlockscoutV2Transaction>({
     baseURL,
     path: `/addresses/${address}/transactions`,
@@ -231,5 +259,3 @@ export async function fetchAddressTransactions(baseURL: string, address: string)
     maxPages: 20,
   });
 }
-
-

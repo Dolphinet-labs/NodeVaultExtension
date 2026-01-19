@@ -7,6 +7,9 @@ import { AccountToken, TokenActivityBase, TokenType } from "core/types";
 import { indexerApi, getDxChain } from "../../indexer";
 import { getLatestTokenActivity, prepareTokenActivitiesRepo } from "./utils";
 
+const WIGWAM_INDEXER_API =
+  typeof process !== "undefined" ? process.env.WIGWAM_INDEXER_API : "";
+
 /**
  * D-Indexer API Token Activities sync
  * Only for native token
@@ -14,7 +17,7 @@ import { getLatestTokenActivity, prepareTokenActivitiesRepo } from "./utils";
 export async function syncDxTokenActivities(token: AccountToken) {
   const { chainId, tokenSlug, accountAddress, tokenType } = token;
 
-  if (!process.env.WIGWAM_INDEXER_API) return;
+  if (!WIGWAM_INDEXER_API) return;
 
   // if (tokenSlug !== NATIVE_TOKEN_SLUG) return;
 

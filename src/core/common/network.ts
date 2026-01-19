@@ -11,7 +11,12 @@ import { EvmNetwork } from "./chainList";
 import { Setting } from "./settings";
 
 const INFURA_TEMPLATE = "${INFURA_API_KEY}";
-const INFURA_API_KEY = process.env.WIGWAM_INFURA_API_KEY;
+const WIGWAM_INFURA_API_KEY =
+  typeof process !== "undefined"
+    ? process.env.WIGWAM_INFURA_API_KEY
+    : undefined;
+const NODE_ENV =
+  typeof process !== "undefined" ? process.env.NODE_ENV : undefined;
 
 const rpcUrlsCache = new Map<number, string>();
 
@@ -29,14 +34,14 @@ export async function getRpcUrl(chainId: number) {
     url = network.rpcUrls[0];
   }
 
-  if (process.env.NODE_ENV !== "test" && url.includes(INFURA_TEMPLATE)) {
-    if (!INFURA_API_KEY) {
+  if (NODE_ENV !== "test" && url.includes(INFURA_TEMPLATE)) {
+    if (!WIGWAM_INFURA_API_KEY) {
       throw new Error(
         "Current rpc url requires INFURA API KEY environment variable",
       );
     }
 
-    url = url.replace(INFURA_TEMPLATE, INFURA_API_KEY);
+    url = url.replace(INFURA_TEMPLATE, WIGWAM_INFURA_API_KEY);
   }
 
   // Avoid double subscription on first load (rare case)

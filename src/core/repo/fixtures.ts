@@ -10,6 +10,8 @@ import { db } from "./schema";
 import { networks } from "./helpers";
 
 let setupFixturesPromise: Promise<void> | null = null;
+const NODE_ENV =
+  typeof process !== "undefined" ? process.env.NODE_ENV : undefined;
 
 export async function setupFixtures() {
   if (setupFixturesPromise) return setupFixturesPromise;
@@ -32,7 +34,7 @@ export async function setupFixtures() {
 
         await networks.bulkPut(mainNets);
 
-        if (process.env.NODE_ENV === "test") return;
+        if (NODE_ENV === "test") return;
 
         // Fetch the extended chain list (best-effort). We intentionally do this
         // AFTER seeding DEFAULT_NETWORKS so the Networks screen is never empty
@@ -77,7 +79,7 @@ export async function setupFixtures() {
       });
     } catch (err) {
       // Avoid noisy logs in production; this is best-effort and defaults are seeded above.
-      if (process.env.NODE_ENV !== "production") {
+      if (NODE_ENV !== "production") {
         console.error("[setupFixtures] failed", err);
       }
     } finally {

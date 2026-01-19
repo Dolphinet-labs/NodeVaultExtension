@@ -1,7 +1,10 @@
 import classNames from "clsx";
 import type { FC, ReactNode } from "react";
 import Input from "./Input";
-import { NODEVAULT_SAFETY_TIPS_URL, NODEVAULT_SUPPORT_EMAIL } from "app/constants/links";
+import {
+  NODEVAULT_SAFETY_TIPS_URL,
+  NODEVAULT_SUPPORT_EMAIL,
+} from "app/constants/links";
 
 const TIPS = NODEVAULT_SAFETY_TIPS_URL;
 

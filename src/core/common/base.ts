@@ -6,11 +6,13 @@ export function withError<T>(
   errMessage: string,
   factory: (getError: () => void) => T,
 ): T {
+  const nodeEnv =
+    typeof process !== "undefined" ? process.env.NODE_ENV : undefined;
   const getError = (err?: unknown) => {
     if (err instanceof PublicError) {
       return err;
     } else {
-      if (process.env.NODE_ENV !== "test" && err) {
+      if (nodeEnv !== "test" && err) {
         console.warn(errMessage, err);
       }
 

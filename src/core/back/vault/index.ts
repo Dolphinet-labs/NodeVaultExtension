@@ -286,7 +286,9 @@ export class Vault {
     );
 
     // Disable watch only accounts for prod env
-    if (process.env.RELEASE_ENV === "true") {
+    const releaseEnv =
+      typeof process !== "undefined" ? process.env.RELEASE_ENV : undefined;
+    if (releaseEnv === "true") {
       accounts = accounts.filter((acc) => acc.source !== AccountSource.Address);
     }
 

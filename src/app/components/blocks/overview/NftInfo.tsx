@@ -230,11 +230,13 @@ const NftInfo: FC = () => {
             <RedeemModal
               open={redeemOpened}
               onOpenChange={setRedeemOpened}
-              token={{
-                contract: address,
-                tokenId,
-                title: name ? `${name} ${preparedId}` : preparedId,
-              }}
+              tokens={[
+                {
+                  contract: address,
+                  tokenId,
+                  title: name ? `${name} ${preparedId}` : preparedId,
+                },
+              ]}
               onSuccess={(s) => setCachedStatus(s)}
             />
           )}

@@ -53,5 +53,3 @@ const RedeemStatusModal: FC<Props> = ({ open, onOpenChange, status }) => {
 };
 
 export default RedeemStatusModal;
-
-

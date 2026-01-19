@@ -69,7 +69,11 @@ const NFTOverviewPopup: FC<NFTOverviewPopupProps> = ({
   const redeemEnabled = chainId === 1520 || chainId === 1519;
   const { status: redeemStatus, setCachedStatus } = useRedeemStatus(
     redeemEnabled && redeemToken
-      ? { chainId, contract: redeemToken.contract, tokenId: redeemToken.tokenId }
+      ? {
+          chainId,
+          contract: redeemToken.contract,
+          tokenId: redeemToken.tokenId,
+        }
       : undefined,
   );
 
@@ -222,7 +226,9 @@ const NFTOverviewPopup: FC<NFTOverviewPopupProps> = ({
           className="grow !py-[0.63rem] !min-w-[8rem] !rounded-lg"
           onClick={() => {
             if (!redeemEnabled) {
-              token && openLink({ page: Page.Default, token: token.tokenSlug });
+              if (token) {
+                openLink({ page: Page.Default, token: token.tokenSlug });
+              }
               return;
             }
 
@@ -243,7 +249,7 @@ const NFTOverviewPopup: FC<NFTOverviewPopupProps> = ({
         <RedeemModal
           open={redeemOpened}
           onOpenChange={setRedeemOpened}
-          token={redeemToken}
+          tokens={[redeemToken]}
           onSuccess={(s) => setCachedStatus(s)}
         />
       )}

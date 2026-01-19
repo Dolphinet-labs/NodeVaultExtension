@@ -4,11 +4,14 @@
 
 import { indexerApi } from "core/common/indexerApi";
 
+const WIGWAM_INDEXER_API =
+  typeof process !== "undefined" ? process.env.WIGWAM_INDEXER_API : "";
+
 export const fetchAccountNFTs = async (
   chainId: number,
   accountAddress: string,
 ) => {
-  if (!process.env.WIGWAM_INDEXER_API) {
+  if (!WIGWAM_INDEXER_API) {
     return [];
   }
 
