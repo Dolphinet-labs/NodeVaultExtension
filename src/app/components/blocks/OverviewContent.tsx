@@ -118,7 +118,7 @@ const TokenList = memo<{ tokenType: TokenType }>(({ tokenType }) => {
   const {
     multiSelectEnabled,
     toggleMultiSelect,
-    selectedTokenSlugs,
+    selectedSlugSet,
     selectedTokens,
     redeemTokens,
     redeemDisabledSlugs,
@@ -191,7 +191,7 @@ const TokenList = memo<{ tokenType: TokenType }>(({ tokenType }) => {
         }
         nft={nft}
         isMultiSelect={multiSelectEnabled}
-        isSelected={selectedTokenSlugs.includes(nft.tokenSlug)}
+        isSelected={selectedSlugSet.has(nft.tokenSlug)}
         isRedeemDisabled={redeemDisabledSlugs.has(nft.tokenSlug)}
         isActive={!manageModeEnabled && tokenSlug === nft.tokenSlug}
         onSelect={handleTokenSelect}
@@ -200,7 +200,7 @@ const TokenList = memo<{ tokenType: TokenType }>(({ tokenType }) => {
     ),
     [
       tokens.length,
-      selectedTokenSlugs,
+      selectedSlugSet,
       multiSelectEnabled,
       redeemDisabledSlugs,
       manageModeEnabled,

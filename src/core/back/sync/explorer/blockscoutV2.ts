@@ -139,8 +139,12 @@ async function paginate<TItem>(opts: {
   path: string;
   params?: Record<string, any>;
   maxPages?: number;
+  // Stop fetching further pages once the current page satisfies this
+  // predicate (e.g. items are already older than what we have synced).
+  // Requests are rate-limited to ~1/sec, so every skipped page matters.
+  stopWhen?: (pageItems: TItem[]) => boolean;
 }): Promise<TItem[]> {
-  const { baseURL, path, params, maxPages = 20 } = opts;
+  const { baseURL, path, params, maxPages = 20, stopWhen } = opts;
   const api = getApi(baseURL);
 
   const items: TItem[] = [];
@@ -153,6 +157,8 @@ async function paginate<TItem>(opts: {
 
     const data = res.data;
     if (data?.items?.length) items.push(...data.items);
+
+    if (data?.items?.length && stopWhen?.(data.items)) break;
 
     const next = normalizePageParams(data?.next_page_params);
     if (!next) break;
@@ -234,8 +240,9 @@ export async function fetchAddressTokenTransfers(opts: {
   address: string;
   token?: string;
   type?: string; // "ERC-20,ERC-721,ERC-1155"
+  stopWhen?: (pageItems: BlockscoutV2TokenTransfer[]) => boolean;
 }) {
-  const { baseURL, address, token, type } = opts;
+  const { baseURL, address, token, type, stopWhen } = opts;
 
   return paginate<BlockscoutV2TokenTransfer>({
     baseURL,
@@ -245,17 +252,20 @@ export async function fetchAddressTokenTransfers(opts: {
       ...(token ? { token } : {}),
     },
     maxPages: 20,
+    stopWhen,
   });
 }
 
 export async function fetchAddressTransactions(
   baseURL: string,
   address: string,
+  opts?: { stopWhen?: (pageItems: BlockscoutV2Transaction[]) => boolean },
 ) {
   return paginate<BlockscoutV2Transaction>({
     baseURL,
     path: `/addresses/${address}/transactions`,
     params: {},
     maxPages: 20,
+    stopWhen: opts?.stopWhen,
   });
 }

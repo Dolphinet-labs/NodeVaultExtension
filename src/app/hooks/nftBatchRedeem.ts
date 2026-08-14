@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { storage } from "lib/ext/storage";
 
@@ -36,14 +36,34 @@ export function useNftBatchRedeem({
     () => new Set(),
   );
 
-  const selectedTokens = useMemo(
+  const selectedSlugSet = useMemo(
+    () => new Set(selectedTokenSlugs),
+    [selectedTokenSlugs],
+  );
+
+  const nftTokens = useMemo(
     () =>
       tokens.filter(
-        (token): token is AccountNFT =>
-          token.tokenType === TokenType.NFT &&
-          selectedTokenSlugs.includes(token.tokenSlug),
+        (token): token is AccountNFT => token.tokenType === TokenType.NFT,
       ),
-    [tokens, selectedTokenSlugs],
+    [tokens],
+  );
+
+  const selectedTokens = useMemo(
+    () => nftTokens.filter((token) => selectedSlugSet.has(token.tokenSlug)),
+    [nftTokens, selectedSlugSet],
+  );
+
+  // The token array gets a fresh identity on every background sync emit
+  // (balance updates etc). Key the storage lookup on the actual NFT set,
+  // so we only re-read cached redeem statuses when it changes.
+  const nftTokensRef = useRef(nftTokens);
+  nftTokensRef.current = nftTokens;
+
+  const nftSetFingerprint = useMemo(
+    () =>
+      nftTokens.map((token) => `${token.chainId}_${token.tokenSlug}`).join("|"),
+    [nftTokens],
   );
 
   useEffect(() => {
@@ -55,10 +75,8 @@ export function useNftBatchRedeem({
     let cancelled = false;
 
     (async () => {
-      const nftTokens = tokens.filter(
-        (token): token is AccountNFT => token.tokenType === TokenType.NFT,
-      );
-      const keys = nftTokens.map((token) => {
+      const currentNftTokens = nftTokensRef.current;
+      const keys = currentNftTokens.map((token) => {
         const { address } = parseTokenSlug(token.tokenSlug);
         return redeemCacheKey(token.chainId, address, token.tokenId);
       });
@@ -67,7 +85,7 @@ export function useNftBatchRedeem({
       const next = new Set<string>();
       cached.forEach((val, idx) => {
         if (val?.status) {
-          next.add(nftTokens[idx].tokenSlug);
+          next.add(currentNftTokens[idx].tokenSlug);
         }
       });
       setRedeemDisabledSlugs(next);
@@ -78,7 +96,7 @@ export function useNftBatchRedeem({
     return () => {
       cancelled = true;
     };
-  }, [multiSelectEnabled, isNftsSelected, tokens]);
+  }, [multiSelectEnabled, isNftsSelected, nftSetFingerprint]);
 
   const redeemTokens = useMemo<BatchRedeemToken[]>(
     () =>
@@ -117,6 +135,7 @@ export function useNftBatchRedeem({
     multiSelectEnabled,
     toggleMultiSelect,
     selectedTokenSlugs,
+    selectedSlugSet,
     selectedTokens,
     redeemTokens,
     redeemDisabledSlugs,

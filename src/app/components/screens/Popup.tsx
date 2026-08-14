@@ -203,7 +203,7 @@ const TokenList: FC = () => {
   const {
     multiSelectEnabled,
     toggleMultiSelect,
-    selectedTokenSlugs,
+    selectedSlugSet,
     selectedTokens,
     redeemTokens,
     redeemDisabledSlugs,
@@ -242,7 +242,7 @@ const TokenList: FC = () => {
           manageModeEnabled={manageModeEnabled}
           loadMoreTriggerRef={loadMoreTriggerRef}
           multiSelectEnabled={multiSelectEnabled}
-          selectedTokenSlugs={selectedTokenSlugs}
+          selectedSlugSet={selectedSlugSet}
           redeemDisabledSlugs={redeemDisabledSlugs}
           onToggleSelect={toggleSelect}
         />
@@ -261,7 +261,7 @@ const TokenList: FC = () => {
     searchValue,
     searching,
     redeemDisabledSlugs,
-    selectedTokenSlugs,
+    selectedSlugSet,
     syncing,
     tokens,
   ]);
@@ -345,7 +345,7 @@ type NftListProps = {
   manageModeEnabled: boolean;
   loadMoreTriggerRef: (node: any) => void;
   multiSelectEnabled: boolean;
-  selectedTokenSlugs: string[];
+  selectedSlugSet: Set<string>;
   redeemDisabledSlugs: Set<string>;
   onToggleSelect: (tokenSlug: string) => void;
 };
@@ -357,7 +357,7 @@ const NftList = memo<NftListProps>(
     manageModeEnabled,
     loadMoreTriggerRef,
     multiSelectEnabled,
-    selectedTokenSlugs,
+    selectedSlugSet,
     redeemDisabledSlugs,
     onToggleSelect,
   }) => {
@@ -420,7 +420,7 @@ const NftList = memo<NftListProps>(
           }
           nft={nft}
           isMultiSelect={multiSelectEnabled}
-          isSelected={selectedTokenSlugs.includes(nft.tokenSlug)}
+          isSelected={selectedSlugSet.has(nft.tokenSlug)}
           isRedeemDisabled={redeemDisabledSlugs.has(nft.tokenSlug)}
           onSelect={handleNFTSelect}
           isManageMode={manageModeEnabled}
@@ -433,7 +433,7 @@ const NftList = memo<NftListProps>(
         loadMoreTriggerRef,
         multiSelectEnabled,
         redeemDisabledSlugs,
-        selectedTokenSlugs,
+        selectedSlugSet,
       ],
     );
 

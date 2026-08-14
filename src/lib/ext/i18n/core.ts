@@ -45,11 +45,19 @@ export async function init() {
   fetchedLocaleMessages = refetched;
 }
 
+// t() runs on every render of every translated label, so cache the
+// regex-based key normalization.
+const normalizedNameCache = new Map<string, string>();
+
 export function t(messageName: string, substitutions?: Substitutions) {
   // Chrome i18n message keys must match: [A-Za-z0-9_]+
   // We allow developers to use dotted keys in code (e.g. "redeem.action")
   // and normalize them to Chrome-safe keys at runtime.
-  const normalizedName = messageName.replace(/[^A-Za-z0-9_]/g, "_");
+  let normalizedName = normalizedNameCache.get(messageName);
+  if (normalizedName === undefined) {
+    normalizedName = messageName.replace(/[^A-Za-z0-9_]/g, "_");
+    normalizedNameCache.set(messageName, normalizedName);
+  }
 
   const val =
     fetchedLocaleMessages.target?.[messageName] ??

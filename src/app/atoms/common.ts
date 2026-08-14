@@ -64,23 +64,23 @@ export const allNetworksAtom = atomWithRepoQuery((query, get) =>
   query(async () => {
     const testnetsEnabled = await get(testNetworksAtom);
 
-    const nets = await repo.networks
-      .where("type")
-      .anyOf(["mainnet", ...(testnetsEnabled ? ["testnet", "unknown"] : [])])
-      .toArray();
-
     // Ensure Dolphinet Testnet is available by default (even when testnets are hidden),
     // since it is a first-class network in this wallet.
-    if (!testnetsEnabled) {
-      const dolphinetTestnet = await repo.networks.get(
-        DOLPHINET_TESTNET_CHAIN_ID,
-      );
-      if (
-        dolphinetTestnet &&
-        !nets.some((n) => n.chainId === dolphinetTestnet.chainId)
-      ) {
-        nets.push(dolphinetTestnet);
-      }
+    const [nets, dolphinetTestnet] = await Promise.all([
+      repo.networks
+        .where("type")
+        .anyOf(["mainnet", ...(testnetsEnabled ? ["testnet", "unknown"] : [])])
+        .toArray(),
+      testnetsEnabled
+        ? undefined
+        : repo.networks.get(DOLPHINET_TESTNET_CHAIN_ID),
+    ]);
+
+    if (
+      dolphinetTestnet &&
+      !nets.some((n) => n.chainId === dolphinetTestnet.chainId)
+    ) {
+      nets.push(dolphinetTestnet);
     }
 
     return nets;

@@ -228,6 +228,23 @@ export const fetchAllUsedNetworks = withOfflineCache(
       })),
     );
 
+    // Dolphinet: treat native token balance as a signal that the network is
+    // "used" even if there are no ERC20 tokens / NFTs. Probe all such chains
+    // in parallel instead of one RPC round-trip at a time.
+    const nativeBalanceProbes = new Map<number, Promise<bigint | null>>(
+      items
+        .filter(
+          ({ chainId, tokens }) =>
+            tokens.length === 0 && isDolphinetChainId(chainId),
+        )
+        .map(({ chainId }) => [
+          chainId,
+          getBalanceFromChain(chainId, NATIVE_TOKEN_SLUG, accountAddress).catch(
+            () => null,
+          ),
+        ]),
+    );
+
     const used: number[] = [];
 
     for (const { chainId, tokens } of items) {
@@ -236,16 +253,8 @@ export const fetchAllUsedNetworks = withOfflineCache(
         continue;
       }
 
-      // Dolphinet: treat native token balance as a signal that the network is "used"
-      // even if there are no ERC20 tokens / NFTs.
-      if (isDolphinetChainId(chainId)) {
-        const bal = await getBalanceFromChain(
-          chainId,
-          NATIVE_TOKEN_SLUG,
-          accountAddress,
-        ).catch(() => null);
-        if (bal && bal > 0n) used.push(chainId);
-      }
+      const bal = await nativeBalanceProbes.get(chainId);
+      if (bal && bal > 0n) used.push(chainId);
     }
 
     return used;

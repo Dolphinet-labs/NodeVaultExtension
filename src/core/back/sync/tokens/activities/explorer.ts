@@ -44,10 +44,24 @@ export async function syncExplorerTokenActivities(token: AccountToken) {
       pending: 0,
     };
 
+    // Results come newest-first, and everything at or before the latest
+    // synced activity is discarded below anyway — so stop paginating
+    // (each page costs a rate-limited request) once a page reaches it.
+    const reachedLatest = (pageItems: { timestamp?: string }[]) => {
+      if (!latestItem) return false;
+      const lastTs = Date.parse(
+        pageItems[pageItems.length - 1]?.timestamp ?? "",
+      );
+      return Number.isFinite(lastTs) && latestItem.timeAt >= lastTs;
+    };
+
     if (nativeToken) {
       const txs = await fetchAddressTransactions(
         explorerApiUrl,
         accountAddress,
+        {
+          stopWhen: reachedLatest,
+        },
       );
       for (const tx of txs) {
         const timeAt = Date.parse(tx.timestamp);
@@ -81,6 +95,7 @@ export async function syncExplorerTokenActivities(token: AccountToken) {
       baseURL: explorerApiUrl,
       address: accountAddress,
       token: tokenAddress,
+      stopWhen: reachedLatest,
       type:
         standard === TokenStandard.ERC20
           ? "ERC-20"
