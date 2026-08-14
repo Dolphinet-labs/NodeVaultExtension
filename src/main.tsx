@@ -2,6 +2,7 @@ import "lib/env/shim";
 
 import { porter } from "core/client";
 import { PorterChannel } from "core/types";
+import { sleepOnInactivity } from "lib/ext/sleepOnInactivity";
 
 import { mount } from "app/root";
 import MainApp from "app/components/MainApp";
@@ -13,5 +14,17 @@ import { setupFixtures } from "core/repo";
   await setupFixtures();
 
   porter.connect(PorterChannel.Wallet);
-  mount(<MainApp />);
+  let unmount: (() => void) | null = mount(<MainApp />);
+
+  sleepOnInactivity({
+    onSleep() {
+      porter.suspend();
+      unmount?.();
+      unmount = null;
+    },
+    onWake() {
+      porter.resume(PorterChannel.Wallet);
+      unmount = mount(<MainApp />);
+    },
+  });
 })();
