@@ -15,36 +15,30 @@ import Input from "app/components/elements/Input";
 import LongTextField from "app/components/elements/LongTextField";
 import Select from "app/components/elements/Select";
 import { redeemGetNonce, redeemSubmit } from "app/api/redeem";
-import type { RedeemStatus } from "app/hooks/redeem";
+import { normalizeRedeemStatus, type RedeemStatus } from "app/hooks/redeem";
+import { isDolphinetChainId } from "fixtures/networks/dolphinet";
+
+type RedeemToken = {
+  contract: string;
+  tokenId: string;
+  title?: string;
+};
 
 type RedeemModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  tokens: {
-    contract: string;
-    tokenId: string;
-    title?: string;
-  }[];
+  tokens: RedeemToken[];
   onSuccess?: (
     status: RedeemStatus,
     token: { contract: string; tokenId: string },
   ) => void;
 };
 
-const DOLPHINET_CHAIN_IDS = new Set([1520, 1519]);
-const normalizeStatus = (status?: string | null): RedeemStatus => {
-  const s = status ?? "pending";
-  if (
-    s === "pending" ||
-    s === "confirmed" ||
-    s === "shipping" ||
-    s === "delivered" ||
-    s === "returning"
-  ) {
-    return s;
-  }
-  return "pending";
-};
+const shortTokenTitle = (token: RedeemToken) =>
+  token.title ??
+  `${token.contract.slice(0, 6)}...${token.contract.slice(-4)} #${
+    token.tokenId
+  }`;
 
 const RedeemModal: FC<RedeemModalProps> = ({
   open,
@@ -63,7 +57,7 @@ const RedeemModal: FC<RedeemModalProps> = ({
     clearHistory,
   } = useRedeemShippingHistory(currentAccount.address);
 
-  const redeemEnabled = DOLPHINET_CHAIN_IDS.has(chainId);
+  const redeemEnabled = isDolphinetChainId(chainId);
 
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
@@ -219,8 +213,15 @@ const RedeemModal: FC<RedeemModalProps> = ({
 
       const signer = provider.getUncheckedSigner(currentAccount.address);
 
-      if (tokens.length === 1) {
-        const token = tokens[0];
+      const shipping = {
+        name: name.trim(),
+        address: address.trim(),
+        phone: phone.trim(),
+        email: email.trim(),
+        note: note.trim() ? note.trim() : null,
+      };
+
+      const redeemOne = async (token: RedeemToken) => {
         const tokenKey = {
           chainId,
           contract: token.contract,
@@ -236,73 +237,38 @@ const RedeemModal: FC<RedeemModalProps> = ({
           nonce,
           message: messageToSign,
           signature,
-          shipping: {
-            name: name.trim(),
-            address: address.trim(),
-            phone: phone.trim(),
-            email: email.trim(),
-            note: note.trim() ? note.trim() : null,
-          },
+          shipping,
         });
 
         if ("message" in res) {
           throw new Error(res.message || "Submit failed");
         }
 
+        onSuccess?.(normalizeRedeemStatus(res.status), tokenKey);
+
+        return res;
+      };
+
+      if (tokens.length === 1) {
+        const res = await redeemOne(tokens[0]);
+
         setSuccess({
           alreadyRedeemed: res.alreadyRedeemed,
           status: res.status,
         });
-
-        const nextStatus = normalizeStatus(res.status);
-        onSuccess?.(nextStatus, tokenKey);
       } else {
         const total = tokens.length;
         let successCount = 0;
         const failedTitles: string[] = [];
 
         for (let i = 0; i < tokens.length; i += 1) {
-          const token = tokens[i];
-          const tokenKey = {
-            chainId,
-            contract: token.contract,
-            tokenId: token.tokenId,
-            walletAddress: currentAccount.address,
-          };
-
           setBatchProgress({ current: i + 1, total });
 
           try {
-            const { nonce, messageToSign } = await redeemGetNonce(tokenKey);
-            const signature = await signer.signMessage(messageToSign);
-            const res = await redeemSubmit({
-              token: tokenKey,
-              nonce,
-              message: messageToSign,
-              signature,
-              shipping: {
-                name: name.trim(),
-                address: address.trim(),
-                phone: phone.trim(),
-                email: email.trim(),
-                note: note.trim() ? note.trim() : null,
-              },
-            });
-
-            if ("message" in res) {
-              throw new Error(res.message || "Submit failed");
-            }
-
+            await redeemOne(tokens[i]);
             successCount += 1;
-            const nextStatus = normalizeStatus(res.status);
-            onSuccess?.(nextStatus, tokenKey);
           } catch {
-            const title =
-              token.title ??
-              `${token.contract.slice(0, 6)}...${token.contract.slice(-4)} #${
-                token.tokenId
-              }`;
-            failedTitles.push(title);
+            failedTitles.push(shortTokenTitle(tokens[i]));
           }
         }
 
@@ -390,10 +356,7 @@ const RedeemModal: FC<RedeemModalProps> = ({
                       key={`${token.contract}_${token.tokenId}`}
                       className="truncate"
                     >
-                      {token.title ??
-                        `${token.contract.slice(0, 6)}...${token.contract.slice(-4)} #${
-                          token.tokenId
-                        }`}
+                      {shortTokenTitle(token)}
                     </div>
                   ))}
                 </div>

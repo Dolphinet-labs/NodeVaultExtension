@@ -181,6 +181,50 @@ export const syncAccountNFTs = memoize(
   },
 );
 
+type BlockscoutNftInstanceLike = {
+  metadata?: any;
+  image_url?: string | null;
+  animation_url?: string | null;
+  external_app_url?: string | null;
+};
+
+// Map a Blockscout v2 token instance to the NSx-like shape consumed by this module
+function toNsxNftAsset(opts: {
+  contract: string;
+  contractName: string | null;
+  tokenId: string;
+  ercType: string;
+  amount: string;
+  inst: BlockscoutNftInstanceLike;
+}) {
+  const { contract, contractName, tokenId, ercType, amount, inst } = opts;
+
+  return {
+    contract_address: contract,
+    contract_name: contractName,
+    contract_token_id: tokenId,
+    token_id: tokenId,
+    erc_type: ercType,
+    amount,
+    token_uri: null,
+    metadata_json: inst.metadata ?? null,
+    name: inst.metadata?.name ?? null,
+    content_type: null,
+    content_uri: inst.animation_url ?? null,
+    description: inst.metadata?.description ?? null,
+    image_uri: inst.image_url ?? null,
+    external_link: inst.external_app_url ?? inst.metadata?.external_url ?? null,
+    latest_trade_price: null,
+    latest_trade_symbol: null,
+    latest_trade_token: null,
+    latest_trade_timestamp: null,
+    nftscan_id: `${contract}:${tokenId}`,
+    nftscan_uri: inst.image_url ?? null,
+    small_nftscan_uri: null,
+    attributes: inst.metadata?.attributes ?? null,
+  };
+}
+
 async function fetchDolphinetNfts(chainId: number, accountAddress: string) {
   const network = await getNetwork(chainId);
   const { explorerApiUrl } = network;
@@ -205,34 +249,19 @@ async function fetchDolphinetNfts(chainId: number, accountAddress: string) {
       accountAddress,
     );
 
-    // Map Blockscout v2 shape to NSx-like shape consumed by this module
     return collections.map((c) => ({
       contract_address: c.token.address_hash,
       contract_name: c.token.name ?? null,
-      assets: (c.token_instances ?? []).map((i) => ({
-        contract_address: c.token.address_hash,
-        contract_name: c.token.name ?? null,
-        contract_token_id: i.id,
-        token_id: i.id,
-        erc_type: (i.token_type || "").toLowerCase(),
-        amount: i.value,
-        token_uri: null,
-        metadata_json: i.metadata ?? null,
-        name: i.metadata?.name ?? null,
-        content_type: null,
-        content_uri: i.animation_url ?? null,
-        description: i.metadata?.description ?? null,
-        image_uri: i.image_url ?? null,
-        external_link: i.external_app_url ?? i.metadata?.external_url ?? null,
-        latest_trade_price: null,
-        latest_trade_symbol: null,
-        latest_trade_token: null,
-        latest_trade_timestamp: null,
-        nftscan_id: `${c.token.address_hash}:${i.id}`,
-        nftscan_uri: i.image_url ?? null,
-        small_nftscan_uri: null,
-        attributes: i.metadata?.attributes ?? null,
-      })),
+      assets: (c.token_instances ?? []).map((i) =>
+        toNsxNftAsset({
+          contract: c.token.address_hash,
+          contractName: c.token.name ?? null,
+          tokenId: i.id,
+          ercType: (i.token_type || "").toLowerCase(),
+          amount: i.value,
+          inst: i,
+        }),
+      ),
     }));
   }
 
@@ -269,33 +298,16 @@ async function fetchDolphinetNfts(chainId: number, accountAddress: string) {
         assets: [],
       };
 
-      coll.assets.push({
-        contract_address: contract,
-        contract_name: token?.name ?? null,
-        contract_token_id: tokenId,
-        token_id: tokenId,
-        erc_type: String((inst as any)?.token_type ?? "erc721").toLowerCase(),
-        amount: String((inst as any)?.value ?? "1"),
-        token_uri: null,
-        metadata_json: (inst as any)?.metadata ?? null,
-        name: (inst as any)?.metadata?.name ?? null,
-        content_type: null,
-        content_uri: (inst as any)?.animation_url ?? null,
-        description: (inst as any)?.metadata?.description ?? null,
-        image_uri: (inst as any)?.image_url ?? null,
-        external_link:
-          (inst as any)?.external_app_url ??
-          (inst as any)?.metadata?.external_url ??
-          null,
-        latest_trade_price: null,
-        latest_trade_symbol: null,
-        latest_trade_token: null,
-        latest_trade_timestamp: null,
-        nftscan_id: `${contract}:${tokenId}`,
-        nftscan_uri: (inst as any)?.image_url ?? null,
-        small_nftscan_uri: null,
-        attributes: (inst as any)?.metadata?.attributes ?? null,
-      });
+      coll.assets.push(
+        toNsxNftAsset({
+          contract,
+          contractName: token?.name ?? null,
+          tokenId,
+          ercType: String((inst as any)?.token_type ?? "erc721").toLowerCase(),
+          amount: String((inst as any)?.value ?? "1"),
+          inst: inst ?? {},
+        }),
+      );
 
       grouped.set(contract, coll);
     }

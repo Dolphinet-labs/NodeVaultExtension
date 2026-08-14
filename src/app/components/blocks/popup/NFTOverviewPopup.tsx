@@ -35,6 +35,8 @@ import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
 import Button from "app/components/elements/Button";
 import IconedButton from "app/components/elements/IconedButton";
 
+import { isDolphinetChainId } from "fixtures/networks/dolphinet";
+
 import PopupModal, { IPopupModalProps } from "./PopupModal";
 import NftOverview from "../nft/NftOverview";
 import RedeemModal from "../redeem/RedeemModal";
@@ -66,7 +68,7 @@ const NFTOverviewPopup: FC<NFTOverviewPopupProps> = ({
     };
   }, [token?.tokenSlug, token?.tokenId, token?.name]);
 
-  const redeemEnabled = chainId === 1520 || chainId === 1519;
+  const redeemEnabled = isDolphinetChainId(chainId);
   const { status: redeemStatus, setCachedStatus } = useRedeemStatus(
     redeemEnabled && redeemToken
       ? {

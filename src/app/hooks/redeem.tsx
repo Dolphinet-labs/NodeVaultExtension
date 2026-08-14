@@ -24,11 +24,20 @@ const VALID_STATUSES: RedeemStatus[] = [
   "returning",
 ];
 
-function isRedeemStatus(s: string): s is RedeemStatus {
+export function isRedeemStatus(s: string): s is RedeemStatus {
   return (VALID_STATUSES as string[]).includes(s);
 }
 
-function cacheKey(chainId: number, contract: string, tokenId: string) {
+export function normalizeRedeemStatus(status?: string | null): RedeemStatus {
+  const s = status ?? "pending";
+  return isRedeemStatus(s) ? s : "pending";
+}
+
+export function redeemCacheKey(
+  chainId: number,
+  contract: string,
+  tokenId: string,
+) {
   return `redeem_${chainId}_${contract.toLowerCase()}_${tokenId}`;
 }
 
@@ -45,13 +54,13 @@ export function useRedeemStatus(input?: {
 
   const key = useMemo(() => {
     if (!chainId || !contract || !tokenId) return null;
-    return cacheKey(chainId, contract, tokenId);
+    return redeemCacheKey(chainId, contract, tokenId);
   }, [chainId, contract, tokenId]);
 
   const setCachedStatus = useCallback(
     async (next: RedeemStatus) => {
       if (!chainId || !contract || !tokenId) return;
-      const k = cacheKey(chainId, contract, tokenId);
+      const k = redeemCacheKey(chainId, contract, tokenId);
       const val: CacheValue = { status: next, updatedAt: Date.now() };
       await storage.put(k, val);
       setStatus(next);

@@ -15,3 +15,4 @@ export * from "./ens";
 export * from "./rns";
 export * from "./hideToken";
 export * from "./redeem";
+export * from "./nftBatchRedeem";

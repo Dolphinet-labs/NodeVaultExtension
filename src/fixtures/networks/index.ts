@@ -31,7 +31,12 @@ import { MANTLE } from "./mantle";
 import { ROOTSTOCK } from "./rootstock";
 import { MODE } from "./mode";
 import { BLAST } from "./blast";
-import { DOLPHINET } from "./dolphinet";
+import {
+  DOLPHINET,
+  DOLPHINET_ICON,
+  DOLPHINET_TESTNET_ICON,
+  DOLPHINET_TESTNET_CHAIN_ID,
+} from "./dolphinet";
 
 // Currently taken from
 // https://github.com/TP-Lab/networklist-org/blob/main/chains.json
@@ -128,9 +133,9 @@ export function getAssetLogoUrls(
       // Fallback for forks that don't ship native token pngs yet.
       if (chainTag === "dolphinet") {
         urls.push(
-          asset.chainId === 1519
-            ? "https://explorer-testnet.dolphinode.world/assets/configs/network_icon.png"
-            : "https://explorer.dolphinode.world/assets/configs/network_icon.png",
+          asset.chainId === DOLPHINET_TESTNET_CHAIN_ID
+            ? DOLPHINET_TESTNET_ICON
+            : DOLPHINET_ICON,
         );
       }
     }

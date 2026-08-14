@@ -1,14 +1,26 @@
 import { Network } from "core/types";
 
-const DOLPHINET_ICON =
+export const DOLPHINET_MAINNET_CHAIN_ID = 1520;
+export const DOLPHINET_TESTNET_CHAIN_ID = 1519;
+
+export const DOLPHINET_CHAIN_IDS = new Set<number>([
+  DOLPHINET_MAINNET_CHAIN_ID,
+  DOLPHINET_TESTNET_CHAIN_ID,
+]);
+
+export function isDolphinetChainId(chainId?: number): boolean {
+  return chainId !== undefined && DOLPHINET_CHAIN_IDS.has(chainId);
+}
+
+export const DOLPHINET_ICON =
   "https://explorer.dolphinode.world/assets/configs/network_icon.png";
-const DOLPHINET_TESTNET_ICON =
+export const DOLPHINET_TESTNET_ICON =
   "https://explorer-testnet.dolphinode.world/assets/configs/network_icon.png";
 
 export const DOLPHINET: Network[] = [
   // Mainnet
   {
-    chainId: 1520,
+    chainId: DOLPHINET_MAINNET_CHAIN_ID,
     type: "mainnet",
     rpcUrls: [
       "https://rpc.dolphinode.world",
@@ -29,7 +41,7 @@ export const DOLPHINET: Network[] = [
   },
   // Testnet
   {
-    chainId: 1519,
+    chainId: DOLPHINET_TESTNET_CHAIN_ID,
     type: "testnet",
     rpcUrls: ["https://rpc-testnet.dolphinode.world"],
     chainTag: "dolphinet",

@@ -34,10 +34,9 @@ function getRedeemApiOrigin() {
   return origin.replace(/\/+$/, "");
 }
 
-async function fetchJson<T>(
+async function fetchApiJson<T>(
   path: string,
-  body: unknown,
-  opts?: { timeoutMs?: number },
+  opts?: { body?: unknown; timeoutMs?: number },
 ): Promise<T> {
   const controller = new AbortController();
   const timeoutMs = opts?.timeoutMs ?? 20_000;
@@ -45,37 +44,13 @@ async function fetchJson<T>(
 
   try {
     const res = await fetch(`${getRedeemApiOrigin()}${path}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-      signal: controller.signal,
-    });
-
-    const text = await res.text();
-    const json = text ? (JSON.parse(text) as any) : null;
-
-    if (!res.ok) {
-      const message =
-        (json && typeof json.message === "string" && json.message) ||
-        res.statusText ||
-        "Request failed";
-      throw new Error(message);
-    }
-
-    return json as T;
-  } finally {
-    clearTimeout(t);
-  }
-}
-
-async function fetchGetJson<T>(path: string, opts?: { timeoutMs?: number }) {
-  const controller = new AbortController();
-  const timeoutMs = opts?.timeoutMs ?? 20_000;
-  const t = setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
-    const res = await fetch(`${getRedeemApiOrigin()}${path}`, {
-      method: "GET",
+      ...(opts?.body !== undefined
+        ? {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(opts.body),
+          }
+        : { method: "GET" }),
       signal: controller.signal,
     });
 
@@ -98,11 +73,8 @@ async function fetchGetJson<T>(path: string, opts?: { timeoutMs?: number }) {
 
 export async function redeemGetNonce(input: RedeemTokenKey) {
   const { chainId, contract, tokenId, walletAddress } = input;
-  return fetchJson<RedeemNonceResponse>("/api/redeem/nonce", {
-    chainId,
-    contract,
-    tokenId,
-    walletAddress,
+  return fetchApiJson<RedeemNonceResponse>("/api/redeem/nonce", {
+    body: { chainId, contract, tokenId, walletAddress },
   });
 }
 
@@ -114,15 +86,17 @@ export async function redeemSubmit(input: {
   shipping: RedeemShipping;
 }) {
   const { token, nonce, message, signature, shipping } = input;
-  return fetchJson<RedeemSubmitResponse>("/api/redeem/submit", {
-    chainId: token.chainId,
-    contract: token.contract,
-    tokenId: token.tokenId,
-    walletAddress: token.walletAddress,
-    nonce,
-    message,
-    signature,
-    shipping,
+  return fetchApiJson<RedeemSubmitResponse>("/api/redeem/submit", {
+    body: {
+      chainId: token.chainId,
+      contract: token.contract,
+      tokenId: token.tokenId,
+      walletAddress: token.walletAddress,
+      nonce,
+      message,
+      signature,
+      shipping,
+    },
   });
 }
 
@@ -139,7 +113,7 @@ export async function redeemGetStatus(input: {
     tokenId,
   });
 
-  return fetchGetJson<RedeemStatusResponse>(
+  return fetchApiJson<RedeemStatusResponse>(
     `/api/redeem/status?${qs.toString()}`,
   );
 }

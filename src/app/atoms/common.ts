@@ -6,6 +6,7 @@ import {
   atomWithAutoReset,
 } from "lib/atom-utils";
 import { INITIAL_NETWORK } from "fixtures/networks";
+import { DOLPHINET_TESTNET_CHAIN_ID } from "fixtures/networks/dolphinet";
 
 import * as repo from "core/repo";
 import { getAccounts, onAccountsUpdated } from "core/client";
@@ -71,7 +72,9 @@ export const allNetworksAtom = atomWithRepoQuery((query, get) =>
     // Ensure Dolphinet Testnet is available by default (even when testnets are hidden),
     // since it is a first-class network in this wallet.
     if (!testnetsEnabled) {
-      const dolphinetTestnet = await repo.networks.get(1519);
+      const dolphinetTestnet = await repo.networks.get(
+        DOLPHINET_TESTNET_CHAIN_ID,
+      );
       if (
         dolphinetTestnet &&
         !nets.some((n) => n.chainId === dolphinetTestnet.chainId)

@@ -48,7 +48,7 @@ import NftOverview from "../nft/NftOverview";
 import RedeemModal from "../redeem/RedeemModal";
 import RedeemStatusModal from "../redeem/RedeemStatusModal";
 
-const DOLPHINET_CHAIN_IDS = new Set([1520, 1519]);
+import { isDolphinetChainId } from "fixtures/networks/dolphinet";
 
 const NftInfo: FC = () => {
   useI18NUpdate();
@@ -81,7 +81,7 @@ const NftInfo: FC = () => {
     [tokenSlug],
   );
 
-  const redeemEnabled = DOLPHINET_CHAIN_IDS.has(chainId);
+  const redeemEnabled = isDolphinetChainId(chainId);
   const { status: redeemStatus, setCachedStatus } = useRedeemStatus(
     redeemEnabled && tokenInfo
       ? { chainId, contract: address, tokenId: tokenInfo.tokenId }
@@ -89,9 +89,9 @@ const NftInfo: FC = () => {
   );
 
   const redeemLabel = useMemo(() => {
-    if (!redeemEnabled) return t("redeem_action");
-    if (!redeemStatus) return t("redeem_action");
-    return t(`redeem_status_${redeemStatus}_title`);
+    if (!redeemEnabled) return t("redeem.action");
+    if (!redeemStatus) return t("redeem.action");
+    return t(`redeem.status.${redeemStatus}.title`);
   }, [redeemEnabled, redeemStatus]);
 
   const { copy, copied } = useCopyToClipboard(address);

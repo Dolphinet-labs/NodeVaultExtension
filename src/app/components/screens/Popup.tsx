@@ -15,9 +15,6 @@ import { match } from "ts-pattern";
 import { PopupToolbarTab } from "app/nav";
 import Masonry from "lib/react-masonry/Masonry";
 import { useAtomsAll, useLazyAtomValue } from "lib/atom-utils";
-import { t } from "lib/ext/i18n";
-import { useI18NUpdate } from "lib/ext/i18n/react";
-import { storage } from "lib/ext/storage";
 
 import {
   Account,
@@ -28,7 +25,6 @@ import {
   WalletStatus,
 } from "core/types";
 import * as repo from "core/repo";
-import { parseTokenSlug } from "core/common/tokens";
 
 import {
   LOAD_MORE_ON_TOKEN_FROM_END,
@@ -45,6 +41,7 @@ import {
   web3MetaMaskCompatibleAtom,
 } from "app/atoms";
 import { useAccountToken, useIsSyncing, useLazyNetwork } from "app/hooks";
+import { useNftBatchRedeem } from "app/hooks/nftBatchRedeem";
 import { useTokenList } from "app/hooks/tokenList";
 
 import PopupLayout from "../layouts/PopupLayout";
@@ -58,8 +55,8 @@ import NoNftState from "../blocks/tokenList/NoNftState";
 import NftCard from "../blocks/tokenList/NftCard";
 import ActivityContent from "../blocks/activity/ActivityContent";
 import NFTOverviewPopup from "../blocks/popup/NFTOverviewPopup";
-import Button from "../elements/Button";
 import RedeemModal from "../blocks/redeem/RedeemModal";
+import BatchRedeemBar from "../blocks/redeem/BatchRedeemBar";
 
 import ShareAddress from "./receiveTabs/ShareAddress";
 import AssetsManagement, { ManageMode } from "../elements/AssetsManagement";
@@ -172,7 +169,6 @@ const PopupNetworkSelect: FC = () => {
 };
 
 const TokenList: FC = () => {
-  useI18NUpdate();
   const tokenType = useAtomValue(tokenTypeAtom);
 
   const {
@@ -198,81 +194,27 @@ const TokenList: FC = () => {
   });
 
   const [mode, setMode] = useState<ManageMode>(null);
-  const [multiSelectEnabled, setMultiSelectEnabled] = useState(false);
-  const [selectedTokenSlugs, setSelectedTokenSlugs] = useState<string[]>([]);
-  const [batchRedeemOpened, setBatchRedeemOpened] = useState(false);
-  const [redeemDisabledSlugs, setRedeemDisabledSlugs] = useState<Set<string>>(
-    () => new Set(),
-  );
 
   const tokens = useMemo(
     () => (mode === "add" && !searchValueIsAddress ? [] : tokensPure),
     [mode, searchValueIsAddress, tokensPure],
   );
 
-  const selectedTokens = useMemo(
-    () =>
-      tokens.filter(
-        (token): token is AccountNFT =>
-          token.tokenType === TokenType.NFT &&
-          selectedTokenSlugs.includes(token.tokenSlug),
-      ),
-    [tokens, selectedTokenSlugs],
-  );
-
-  useEffect(() => {
-    if (!multiSelectEnabled || !isNftsSelected) {
-      setRedeemDisabledSlugs(new Set());
-      return;
-    }
-
-    let cancelled = false;
-
-    (async () => {
-      const nftTokens = tokens.filter(
-        (token): token is AccountNFT => token.tokenType === TokenType.NFT,
-      );
-      const keys = nftTokens.map((token) => {
-        const { address } = parseTokenSlug(token.tokenSlug);
-        return `redeem_${token.chainId}_${address.toLowerCase()}_${token.tokenId}`;
-      });
-      const cached = await storage.fetchMany<{ status?: string }>(keys);
-      if (cancelled) return;
-      const next = new Set<string>();
-      cached.forEach((val, idx) => {
-        if (val?.status) {
-          next.add(nftTokens[idx].tokenSlug);
-        }
-      });
-      setRedeemDisabledSlugs(next);
-    })().catch(() => {
-      if (!cancelled) setRedeemDisabledSlugs(new Set());
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [multiSelectEnabled, isNftsSelected, tokens]);
-
-  const redeemTokens = useMemo(
-    () =>
-      selectedTokens.map((token) => {
-        const { address } = parseTokenSlug(token.tokenSlug);
-        return {
-          contract: address,
-          tokenId: token.tokenId,
-          title: token.name ?? token.tokenId,
-        };
-      }),
-    [selectedTokens],
-  );
-
-  useEffect(() => {
-    if (!isNftsSelected || manageModeEnabled || mode !== null) {
-      setMultiSelectEnabled(false);
-      setSelectedTokenSlugs([]);
-    }
-  }, [isNftsSelected, manageModeEnabled, mode]);
+  const {
+    multiSelectEnabled,
+    toggleMultiSelect,
+    selectedTokenSlugs,
+    selectedTokens,
+    redeemTokens,
+    redeemDisabledSlugs,
+    toggleSelect,
+    batchRedeemOpened,
+    setBatchRedeemOpened,
+  } = useNftBatchRedeem({
+    tokens,
+    isNftsSelected,
+    suspended: manageModeEnabled || mode !== null,
+  });
 
   const tokensBar = useMemo(() => {
     if (tokens.length === 0) {
@@ -302,13 +244,7 @@ const TokenList: FC = () => {
           multiSelectEnabled={multiSelectEnabled}
           selectedTokenSlugs={selectedTokenSlugs}
           redeemDisabledSlugs={redeemDisabledSlugs}
-          onToggleSelect={(tokenSlug) =>
-            setSelectedTokenSlugs((prev) =>
-              prev.includes(tokenSlug)
-                ? prev.filter((slug) => slug !== tokenSlug)
-                : [...prev, tokenSlug],
-            )
-          }
+          onToggleSelect={toggleSelect}
         />
       );
     }
@@ -321,6 +257,7 @@ const TokenList: FC = () => {
     loadMoreTriggerRef,
     manageModeEnabled,
     multiSelectEnabled,
+    toggleSelect,
     searchValue,
     searching,
     redeemDisabledSlugs,
@@ -347,36 +284,13 @@ const TokenList: FC = () => {
         className="my-3"
       />
       {isNftsSelected && mode === null && !manageModeEnabled && (
-        <div className="flex items-center justify-between mb-2">
-          <Button
-            theme="secondary"
-            className="!py-2"
-            onClick={() => {
-              setMultiSelectEnabled((prev) => !prev);
-              setSelectedTokenSlugs([]);
-            }}
-          >
-            {multiSelectEnabled
-              ? t("redeem.batch.cancel")
-              : t("redeem.batch.select")}
-          </Button>
-          {multiSelectEnabled && (
-            <div className="flex items-center gap-3">
-              <span className="text-xs text-brand-gray">
-                {t("redeem.batch.selected")}: {selectedTokens.length}
-              </span>
-              <Button
-                className="!py-2"
-                disabled={selectedTokens.length === 0}
-                onClick={() => {
-                  setBatchRedeemOpened(true);
-                }}
-              >
-                {t("redeem.batch.redeem")}
-              </Button>
-            </div>
-          )}
-        </div>
+        <BatchRedeemBar
+          className="mb-2"
+          multiSelectEnabled={multiSelectEnabled}
+          selectedCount={selectedTokens.length}
+          onToggleMultiSelect={toggleMultiSelect}
+          onRedeem={() => setBatchRedeemOpened(true)}
+        />
       )}
       {tokensBar}
       {multiSelectEnabled && redeemTokens.length > 0 && (

@@ -18,6 +18,8 @@ import { getNetwork } from "core/common/network";
 import { DexPrices, getDexPrices } from "../../dexPrices";
 import { getBalanceFromChain } from "../../chain";
 import { CxToken, indexerApi } from "../../indexer";
+import { isDolphinetChainId } from "fixtures/networks/dolphinet";
+
 import {
   fetchAddressTokenBalances,
   isBlockscoutV2ApiUrl,
@@ -247,7 +249,7 @@ async function fetchDolphinetAccountTokens(
   chainId: number,
   accountAddress: string,
 ) {
-  if (chainId !== 1520 && chainId !== 1519) {
+  if (!isDolphinetChainId(chainId)) {
     throw new Error("Not Dolphinet");
   }
 

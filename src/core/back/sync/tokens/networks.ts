@@ -11,6 +11,11 @@ import {
 } from "core/common/tokens";
 import { getNetwork, isNetworkWithEthToken } from "core/common/network";
 import * as repo from "core/repo";
+import {
+  DOLPHINET_MAINNET_CHAIN_ID,
+  DOLPHINET_TESTNET_CHAIN_ID,
+  isDolphinetChainId,
+} from "fixtures/networks/dolphinet";
 
 import { getCoinGeckoNativeTokenPrice } from "../dexPrices";
 import { getBalanceFromChain } from "../chain";
@@ -200,8 +205,8 @@ export const fetchAllUsedNetworks = withOfflineCache(
   async (accountAddress: string) => {
     const items = await Promise.all(
       [
-        1520, // dolphinet
-        1519, // dolphinet_testnet
+        DOLPHINET_MAINNET_CHAIN_ID,
+        DOLPHINET_TESTNET_CHAIN_ID,
         42161, // arbitrum
         43114, // avalanche
         8453, // base
@@ -233,7 +238,7 @@ export const fetchAllUsedNetworks = withOfflineCache(
 
       // Dolphinet: treat native token balance as a signal that the network is "used"
       // even if there are no ERC20 tokens / NFTs.
-      if (chainId === 1520 || chainId === 1519) {
+      if (isDolphinetChainId(chainId)) {
         const bal = await getBalanceFromChain(
           chainId,
           NATIVE_TOKEN_SLUG,
